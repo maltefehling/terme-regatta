@@ -575,11 +575,11 @@ const G = {
       hint: 'x darf nicht 0 sein. Der Hauptnenner ist x: Nimm jeden Teil der Gleichung mal x – auch die Zahl ohne Bruch. Dann wie gewohnt lösen.',
       sol: ['x darf nicht 0 sein. Hauptnenner: x', `${k} + ${glied(a, 'x', true)} = ${b}x`, `${k} = ${glied(m, 'x', true)}`, `x = ${x0}`, `Probe: ${fmt(k / x0)} + ${a} = ${b} ✓`] };
   },
-  bruchHN() {   // x/p + x/q = c
-    const [p, q, hn] = pick([[2, 3, 6], [2, 4, 4], [3, 6, 6], [2, 5, 10], [4, 6, 12], [3, 4, 12]]), x0 = hn * R(1, 3), c = x0 / p + x0 / q;
-    return { title: 'Bruchgleichung', q: `Löse die Gleichung.${big(`${frac('x', p)} + ${frac('x', q)} = ${c}`)}`, type: 'num', ans: x0, pre: 'x =',
-      hint: `Finde den Hauptnenner von ${p} und ${q} und nimm jeden Teil der Gleichung damit mal. Dann kürzen – die Brüche verschwinden.`,
-      sol: [`Hauptnenner: ${hn}`, `${glied(hn / p, 'x', true)} + ${glied(hn / q, 'x', true)} = ${c * hn}`, `${glied(hn / p + hn / q, 'x', true)} = ${c * hn}`, `x = ${x0}`] };
+  bruchBeide() {   // k/x + a = m/x
+    const x0 = R(2, 6), a = R(1, 4), k = R(1, 9), m = k + a * x0;
+    return { title: 'Bruchgleichung', q: `Löse die Gleichung.${big(`${frac(k, 'x')} + ${a} = ${frac(m, 'x')}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: 'x darf nicht 0 sein. Der Hauptnenner ist x: Nimm jeden Teil der Gleichung mal x – auch die Zahl ohne Bruch. Dann wie gewohnt lösen.',
+      sol: ['x darf nicht 0 sein. Hauptnenner: x', `${k} + ${glied(a, 'x', true)} = ${m}`, `${glied(a, 'x', true)} = ${m - k}`, `x = ${x0}`, `Probe: ${fmt(k / x0)} + ${a} = ${fmt(m / x0)} ✓`] };
   },
   bruch2x() {   // k/(2x) + a = b
     const x0 = R(1, 5), a = R(1, 3), m = R(1, 3), b = a + m, k = 2 * m * x0;
@@ -688,12 +688,18 @@ Object.assign(G, {
       hint: 'x darf nicht 0 sein. Hauptnenner: 2x. Nimm jeden Teil der Gleichung mal 2x und kürze.',
       sol: ['x darf nicht 0 sein. Hauptnenner: 2x', `${2 * a} + ${b} = ${2 * c}x`, `${2 * a + b} = ${2 * c}x`, `x = ${x0}`] };
   },
-  bruchZaehler() {   // (x + p)/m − (x − q)/n = c  mit n = m + 1
-    let m, n, p, q, x0, c;
-    do { m = R(2, 4); n = m + 1; p = R(1, 6); q = R(1, 6); x0 = R(1, 30); c = (x0 + n * p + m * q) / (m * n); } while (!Number.isInteger(c) || c < 1);
-    return { title: 'Bruchgleichung mit x im Zähler', q: `Löse die Gleichung.${big(`${frac(`x + ${p}`, m)} ${MI} ${frac(`x ${MI} ${q}`, n)} = ${c}`)}`, type: 'num', ans: x0, pre: 'x =',
-      hint: `Hauptnenner ${m * n}. Nimm alles mal ${m * n} und kürze. Der Zähler wird dabei zu einer Klammer – und vor der zweiten Klammer steht ein Minus!`,
-      sol: [`Hauptnenner: ${m * n}`, `${n} · (x + ${p}) ${MI} ${m} · (x ${MI} ${q}) = ${c * m * n}`, `${n}x + ${n * p} ${MI} ${m}x + ${m * q} = ${c * m * n}`, `x + ${n * p + m * q} = ${c * m * n}`, `x = ${x0}`] };
+  bruchZaehler() {   // (x + p)/(k·x) = c   oder   a/x − b/(3x) = c
+    if (rand() < .5) {
+      const k = R(2, 3), c = R(1, 3), x0 = R(1, 6), p = (k * c - 1) * x0;
+      return { title: 'Bruchgleichung mit x im Zähler und Nenner', q: `Löse die Gleichung.${big(`${frac(`x + ${p}`, `${k}x`)} = ${c}`)}`, type: 'num', ans: x0, pre: 'x =',
+        hint: `x darf nicht 0 sein. Nimm beide Seiten mal ${k}x – der ganze Zähler bleibt dabei zusammen.`,
+        sol: ['x darf nicht 0 sein. Hauptnenner: ' + k + 'x', `x + ${p} = ${k * c}x`, `${p} = ${k * c - 1}x`, `x = ${x0}`] };
+    }
+    let a, b, c, x0;
+    do { x0 = R(1, 5); c = R(1, 3); a = R(2, 9); b = 3 * a - 3 * c * x0; } while (b <= 0);
+    return { title: 'Bruchgleichung', q: `Löse die Gleichung.${big(`${frac(a, 'x')} ${MI} ${frac(b, '3x')} = ${c}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: 'x darf nicht 0 sein. Hauptnenner: 3x. Nimm jeden Teil mal 3x und kürze.',
+      sol: ['x darf nicht 0 sein. Hauptnenner: 3x', `${3 * a} ${MI} ${b} = ${3 * c}x`, `${3 * a - b} = ${3 * c}x`, `x = ${x0}`] };
   }
 });
 const BEGRIFFE = {};
@@ -707,7 +713,7 @@ const RACES = [
   { name: 'Bodensee-Woche', sub: 'Binomische Formeln mit Zahl vor der Variablen, Faktorisieren', n: 7, soll: 14 * 60,
     gens: ['binom1k', 'binom2k', 'binom3k', 'faktor12', 'faktor12k', 'faktor3', 'faktor3k', 'faktorCheck'] },
   { name: 'Rund um die Höri', sub: 'Gleichungen mit Klammern, Minus vor der Klammer, Bruchgleichungen', n: 8, soll: 22 * 60,
-    gens: ['gleichungBinom', 'gleichungLinear', 'minusBinom', 'minusLinear', 'gleichungBinom', 'minusBinom', 'bruchX', 'bruchHN', 'bruch2x'] },
+    gens: ['gleichungBinom', 'gleichungLinear', 'minusBinom', 'minusLinear', 'gleichungBinom', 'minusBinom', 'bruchX', 'bruchBeide', 'bruch2x'] },
   { name: 'Bodensee-Meisterschaft', sub: 'Meisterklasse: mehrere Schritte verknüpfen', n: 8, soll: 30 * 60,
     must: ['vereinfacheMix', 'faktorAus'],   // kommen in jedem Rennen vor
     gens: ['gleichungZweiBinome', 'gleichungProdukt', 'rechteckFlaeche', 'bruchMix', 'bruchZaehler', 'faktorAus', 'vereinfacheMix', 'minusBinom'] }
