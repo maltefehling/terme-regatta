@@ -1,0 +1,1346 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Regatta">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<title>Terme-Regatta</title>
+<meta name="description" content="Segelregatta auf dem Untersee: Terme, binomische Formeln und Gleichungen für Klasse 8 (Realschule).">
+<style>
+:root{
+  --bg:#eef4f8; --card:#ffffff; --ink:#1d2b36; --muted:#5b6b78; --line:#d5e0e8;
+  --sea:#1f6fa8; --sea2:#4aa3d8; --accent:#e8742a; --ok:#2e8b57; --bad:#c0392b;
+  --soft:#f5f9fc; --blue:#2563eb; --red:#c2410c; --violet:#7c3aed;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:1.7rem;margin:.2rem 0 .6rem}
+h2{font-size:1.2rem;margin:.2rem 0 .6rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:.55rem .9rem}
+button.primary{background:var(--sea);border-color:var(--sea);color:#fff;font-weight:600}
+button.primary:hover{background:#185d8d}
+button:disabled{opacity:.45;cursor:default}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+small{font-size:.85rem}
+#soundBtn{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:20;width:48px;height:48px;border-radius:50%;font-size:1.35rem;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+footer{text-align:center;color:var(--muted);font-size:.8rem;margin:18px 0 6px}
+
+/* Start */
+.werft{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:.4rem 0 1rem}
+.werft .preview{flex:0 0 130px;height:140px;background:linear-gradient(#e0f2fe 70%,#5cb0e0 70%);border-radius:12px;border:1px solid var(--line);display:grid;place-items:center}
+.werft .rows{flex:1;min-width:220px}
+.crow{margin:.15rem 0 .5rem}
+.crow small{display:block;font-weight:600;color:var(--muted);margin-bottom:3px}
+.swatches{display:flex;flex-wrap:wrap;gap:6px}
+.sw{width:38px;height:38px;padding:0;border-radius:50%;border:2px solid #cbd5e1}
+.sw.sel{outline:3px solid var(--sea);outline-offset:2px}
+label{font-weight:600;font-size:.92rem}
+input[type=text]{font:inherit;padding:.5rem .6rem;border:1px solid var(--line);border-radius:8px;width:100%;max-width:280px;display:block;margin:.3rem 0 1rem}
+.rule{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0}
+.rule b{color:var(--sea)}
+.rule .f{white-space:nowrap}
+ul.tight{margin:.3rem 0;padding-left:1.2rem}
+ul.tight li{margin:.2rem 0}
+
+/* Regatten */
+.races{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.race{display:flex;gap:14px;align-items:flex-start;text-align:left;padding:14px}
+.race .num{flex:0 0 42px;height:42px;border-radius:50%;background:var(--sea);color:#fff;display:grid;place-items:center;font-weight:700;font-size:1.1rem}
+.race.locked{opacity:.5}
+.race.locked .num{background:#9aa9b5}
+.race .medal{margin-left:auto;font-size:1.6rem;min-width:2rem;text-align:center}
+.race small{display:block}
+
+/* Rennen */
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:.3rem .8rem;font-size:.9rem;font-weight:600}
+.bar .spacer{flex:1}
+#scene{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line)}
+#boat{transition:transform 1.5s ease-in-out}
+#boat.fast{transition:transform .8s ease-in-out}
+.bob{animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(3px) rotate(1.5deg)}}
+.spin{animation:kringel 1.6s ease-in-out}
+@keyframes kringel{
+  0%{transform:translate(0,0) scaleX(1)}
+  25%{transform:translate(22px,14px) scaleX(.2)}
+  50%{transform:translate(0,26px) scaleX(-1)}
+  75%{transform:translate(-22px,14px) scaleX(-.2)}
+  100%{transform:translate(0,0) scaleX(1)}}
+.flagwehen{animation:wehen 1.4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:left center}
+@keyframes wehen{from{transform:skewY(-4deg) scaleX(1)}to{transform:skewY(4deg) scaleX(.9)}}
+.halfL{animation:sinkL 2.8s ease-in forwards}
+.halfR{animation:sinkR 2.8s ease-in forwards}
+@keyframes sinkL{0%{transform:none}8%{transform:translate(-2px,0) rotate(-3deg)}30%{transform:translate(-8px,2px) rotate(-20deg)}100%{transform:translate(-16px,95px) rotate(-38deg)}}
+@keyframes sinkR{0%{transform:none}8%{transform:translate(2px,0) rotate(3deg)}30%{transform:translate(8px,2px) rotate(22deg)}100%{transform:translate(18px,95px) rotate(40deg)}}
+.blase{animation:blase 1.6s ease-out forwards;opacity:0}
+@keyframes blase{0%{opacity:.9;transform:translateY(0)}100%{opacity:0;transform:translateY(-26px)}}
+.wave{animation:wave 3s ease-in-out infinite alternate}
+@keyframes wave{from{transform:translateX(-8px)}to{transform:translateX(8px)}}
+.buoy.done .buoytop{fill:#2e8b57}
+
+.task{display:grid;grid-template-columns:minmax(0,260px) 1fr;gap:18px;margin-top:12px;align-items:start}
+.task.nosketch{grid-template-columns:1fr}
+@media (max-width:700px){.task{grid-template-columns:1fr}}
+.sketch svg{width:100%;height:auto;max-height:240px}
+.qtitle{font-size:.85rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.trbadge{display:inline-block;margin:.35rem 0 .1rem;padding:.2rem .65rem;border-radius:999px;font-size:.88rem;font-weight:700}
+.trbadge.ja{background:#e0f2fe;color:#075985;border:1px solid #7dd3fc}
+.trbadge.nein{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.q{font-size:1.15rem;margin:.3rem 0 .8rem}
+.big{font-size:1.45rem}
+.answer{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:1.3rem;margin:.4rem 0}
+.answer input{font:inherit;font-size:1.25rem;width:7.5em;padding:.35rem .5rem;border:2px solid var(--line);border-radius:8px;text-align:center}
+.answer input.s{width:3.6em}
+.answer input:focus{outline:none;border-color:var(--sea)}
+.mc{display:flex;flex-wrap:wrap;gap:10px;margin:.4rem 0}
+.mc button{font-size:1.2rem;min-width:5.5rem;padding:.6rem 1rem}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:.8rem}
+.fb{margin-top:12px;border-radius:10px;padding:10px 14px}
+.fb.ok{background:#e7f6ec;border:1px solid #b6e2c4}
+.fb.bad{background:#fdecea;border:1px solid #f3b8b1}
+.fb.hint{background:#fff7e6;border:1px solid #f5d59a}
+.fb.warn{background:#eef4ff;border:1px solid #bcd0f7}
+.sol{margin:.4rem 0 0;padding-left:1.1rem}
+.sol li{margin:.15rem 0}
+sup{font-size:.7em}
+.rt{white-space:nowrap}
+.rt .rad{border-top:1.5px solid currentColor;padding:0 .12em;margin-left:.05em}
+.vorsilben{border-collapse:collapse;width:100%;font-size:.95rem;margin-bottom:4px}
+.vorsilben th,.vorsilben td{border:1px solid var(--line);padding:3px 6px;text-align:left;white-space:nowrap}
+.vorsilben th{background:var(--soft);font-size:.82rem}
+.vorsilben tr.mark td{background:#fff3c4;font-weight:700}
+.begriff{display:inline;padding:6px 0;-webkit-box-decoration-break:clone;box-decoration-break:clone;color:var(--sea);font:inherit;font-weight:700;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
+.begriff::after{content:" ⓘ";font-size:.85em}
+.infobox{background:#eef4ff;border:1px solid #bcd0f7;border-radius:10px;padding:10px 14px;margin:.2rem 0 .8rem;font-size:1rem}
+.infobox .ja{color:var(--ok);font-weight:700}.infobox .nein{color:var(--bad);font-weight:700}
+.waiting{color:var(--muted);font-style:italic;text-align:center;padding:16px}
+
+/* Ergebnis */
+.result{text-align:center}
+.result .medalbig{font-size:4.5rem;line-height:1}
+.stats{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:12px 0}
+.opt.sel{outline:3px solid var(--sea);outline-offset:1px;font-weight:700}
+.answer.term input.termin{width:min(100%,16em);text-align:left;font-size:1.35rem}
+.keys{display:flex;flex-wrap:wrap;gap:6px;margin:.3rem 0 .2rem}
+.keys .key{min-width:48px;min-height:46px;font-size:1.25rem;font-weight:600;padding:.2rem .6rem;border-radius:8px}
+.keys .key.del{color:#b42318}
+.tprev{min-height:1.6em;margin:.2rem 0 .4rem}
+.tprev .prevterm{font-size:1.25rem;font-weight:600;margin-left:.3em}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15;margin:0 .1em}
+.fr span:last-child{border-top:1.5px solid currentColor;padding:0 .15em}
+.err{color:#b42318}
+</style>
+</head>
+<body>
+<main>
+
+<!-- ============ START ============ -->
+<section id="vStart">
+  <div class="grid2">
+    <div class="card">
+      <h1 style="margin-bottom:0">⛵ Terme-Regatta</h1>
+      <p class="muted" style="margin:.1rem 0 .6rem;font-weight:600">Klammern, Formeln und Gleichungen auf dem Untersee</p>
+      <p>Segle beim <b>Gaienhofener Schlosscup</b> fünf Regatten auf dem Untersee – von der Clubregatta bis zur Bodensee-Meisterschaft. An jeder Boje wartet eine Aufgabe zu <b>Termen</b>, <b>binomischen Formeln</b> und <b>Gleichungen</b>. Richtig gelöst? Dann rundest du die Boje. Falsch? Dann musst du einen <b>Strafkringel</b> segeln!</p>
+      <label>Gestalte dein Boot</label>
+      <div class="werft">
+        <div class="preview" id="boatPreview"></div>
+        <div class="rows" id="boatPicker"></div>
+      </div>
+      <label for="boatName">Name deines Bootes (freiwillig)</label>
+      <input type="text" id="boatName" maxlength="10" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="z. B. Klammerwind">
+      <small class="muted" style="display:block;margin:-.7rem 0 .4rem">Höchstens 10 Buchstaben – der Name steht auf dem Rumpf.</small>
+      <div class="fb bad hidden" id="nameHinweis" style="margin:0 0 1rem;max-width:340px">Dieser Name ist nicht erlaubt. Bitte wähle einen anderen.</div>
+      <button class="primary" id="toRaces">Zu den Regatten ➜</button>
+    </div>
+    <div class="card">
+      <h2>Spickzettel</h2>
+      <div class="rule"><b>Ausmultiplizieren:</b><br><span class="f">−3 · (a − 4) = −3a + 12</span></div>
+      <div class="rule"><b>Ausklammern:</b> so viel wie möglich vor die Klammer<br><span class="f">8x − 14xy = 2x · (4 − 7y)</span></div>
+      <div class="rule"><b>Summen multiplizieren:</b> jeder Teil mit jedem<br><span class="f">(x − 2) · (y + 4) = xy + 4x − 2y − 8</span></div>
+      <div class="rule"><b>Binomische Formeln:</b><br><span class="f">(a + b)<sup>2</sup> = a<sup>2</sup> + 2ab + b<sup>2</sup></span><br><span class="f">(a − b)<sup>2</sup> = a<sup>2</sup> − 2ab + b<sup>2</sup></span><br><span class="f">(a + b) · (a − b) = a<sup>2</sup> − b<sup>2</sup></span></div>
+      <div class="rule"><b>Faktorisieren:</b> Quadrate suchen, Mittelstück prüfen<br><span class="f">4x<sup>2</sup> − 12x + 9 = (2x − 3)<sup>2</sup></span>, denn 2 · 2x · 3 = 12x</div>
+      <div class="rule"><b>Minus vor einer Klammer:</b> dreht jedes Vorzeichen um<br><span class="f">x<sup>2</sup> − (x − 3)<sup>2</sup> = x<sup>2</sup> − (x<sup>2</sup> − 6x + 9) = 6x − 9</span></div>
+      <div class="rule"><b>Gleichung mit Klammern:</b><br><span class="f">(x + 1)<sup>2</sup> = x<sup>2</sup> + 11 → 2x + 1 = 11 → x = 5</span></div>
+      <div class="rule"><b>Bruchgleichung:</b> alles mal Hauptnenner, x ≠ 0<br><span class="f">6/x + 1 = 4 → 6 + x = 4x → x = 2</span></div>
+      <h2 style="margin-top:14px">So wird gewertet</h2>
+      <ul class="tight">
+        <li>Falsche Antwort: <b>Strafkringel</b> (+20 Sekunden). Du siehst den Lösungsweg und bekommst eine neue, ähnliche Aufgabe. Solange du den Lösungsweg liest, ist die Uhr angehalten.</li>
+        <li>Ein <b>Tipp</b> kostet 10 Sekunden.</li>
+        <li>Beim 6. Strafkringel wirst du disqualifiziert und segelst die Regatta neu.</li>
+        <li>🥇 bis 1 Kringel · 🥈 bis 3 · 🥉 bis 5. Wer die Sollzeit überschreitet, rutscht eine Stufe tiefer.</li>
+        <li>Jede beendete Regatta schaltet die nächste frei.</li>
+        <li><span class="trbadge ja">🧮 Taschenrechner</span> ist bei allen Aufgaben erlaubt. Rechne im Heft und tippe nur das Ergebnis ein.</li>
+        <li>Terme tippst du ein: für x² geht auch <b>x2</b>. Unter dem Feld siehst du, wie die App deine Eingabe liest.</li>
+        <li>Bruchgleichungen kannst du gegen eine andere Aufgabe tauschen – ohne Strafe.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGATTEN ============ -->
+<section id="vRaces" class="hidden">
+  <div class="bar"><div><div class="qtitle">Regattakalender</div><h1 style="margin:0">🏆 Gaienhofener Schlosscup</h1></div><span class="spacer"></span><button id="backStart">← Boot & Spickzettel</button></div>
+  <div class="races" id="raceList"></div>
+</section>
+
+<!-- ============ RENNEN ============ -->
+<section id="vRace" class="hidden">
+  <div class="bar">
+    <span class="chip" id="cRace"></span>
+    <span class="chip" id="cBuoy"></span>
+    <span class="chip" id="cKringel"></span>
+    <span class="chip" id="cTime"></span>
+    <span class="spacer"></span>
+    <button id="giveUp">Aufgeben</button>
+  </div>
+  <svg id="scene" viewBox="0 0 1000 210" role="img" aria-label="Regattabahn auf dem Untersee"></svg>
+  <div class="card" style="margin-top:12px" id="taskCard"></div>
+</section>
+
+<!-- ============ ERGEBNIS ============ -->
+<section id="vResult" class="hidden">
+  <div class="card result" id="resultCard"></div>
+</section>
+
+<button id="soundBtn" aria-label="Ton einschalten" title="Ton einschalten">🔇</button>
+<footer>Terme-Regatta · eigene Aufgaben, zufällig erzeugt · läuft komplett offline im Browser · keine Daten verlassen das Gerät</footer>
+</main>
+
+<script>
+"use strict";
+/* ---------- Hilfsfunktionen ---------- */
+const $ = id => document.getElementById(id);
+const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = arr => { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+const eq = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
+
+function fmt(x) {
+  x = Number(x.toPrecision(12));
+  const neg = x < 0; x = Math.abs(x);
+  let s = x.toFixed(10).replace(/0+$/, '').replace(/\.$/, '');
+  let [i, d] = s.split('.');
+  if (i.length > 4) i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return (neg ? '−' : '') + i + (d ? ',' + d : '');
+}
+function parseNum(s) {
+  s = String(s).trim().replace(/[\s  ']/g, '').replace(/^[−–]/, '-').replace(/^\+/, '');
+  if (!s) return NaN;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+  return /^-?\d*\.?\d+$/.test(s) ? Number(s) : NaN;
+}
+const rand = Math.random;
+const frac = (z, n) => `<span class="fr"><span>${z}</span><span>${n}</span></span>`;
+const ggT = (a, b) => b ? ggT(b, a % b) : Math.abs(a);
+
+/* ================= Terme lesen und prüfen =================
+   Eingabe als Text (z. B. „6x² − 15x“, „6x^2-15x“, „6x2-15x“, „3(2x+5)“, „(x+4)²“).
+   Gerechnet wird mit Polynomen (Koeffizienten je Glied), damit gleichwertige Terme sicher erkannt werden.
+   Danach wird die FORM geprüft: ausmultipliziert und zusammengefasst ('sum'),
+   möglichst großer Faktor ausgeklammert ('factor') oder als binomische Klammer geschrieben ('binom'). */
+function termNorm(src) {
+  return String(src).replace(/<sup>(\d+)<\/sup>/g, '^$1').replace(/\s+/g, '').replace(/[−–—]/g, '-').replace(/[·×∙•*]/g, '*')
+    .replace(/,/g, '.').replace(/²/g, '^2').replace(/³/g, '^3').toLowerCase()
+    .replace(/([a-z])(\d+)/g, '$1^$2')                 // iPads haben keine Hochzahl-Taste: x2 heißt x²
+    .replace(/\)([23])(?![\d.^])/g, ')^$1');          // (x+3)2 heißt (x+3)²
+}
+function termParse(src) {
+  const s = termNorm(src);
+  if (!s) return { empty: true };
+  const toks = s.match(/\d+(?:\.\d+)?|[a-z]|[-+*^()]/g) || [];
+  if (toks.join('') !== s) return { error: true };
+  let i = 0;
+  const peek = () => toks[i], next = () => toks[i++];
+  const isAtomStart = t => t !== undefined && (/^[\d.a-z]/.test(t) || t === '(');
+  function sum() {
+    const parts = [];
+    let neg = false;
+    if (peek() === '+' || peek() === '-') neg = next() === '-';
+    parts.push({ neg, n: prod() });
+    while (peek() === '+' || peek() === '-') { const n = next() === '-'; parts.push({ neg: n, n: prod() }); }
+    return parts.length === 1 && !parts[0].neg ? parts[0].n : { t: 'sum', parts };
+  }
+  function prod() {
+    const f = [factor()];
+    while (peek() === '*' || isAtomStart(peek())) { if (peek() === '*') next(); f.push(factor()); }
+    return f.length === 1 ? f[0] : { t: 'prod', f };
+  }
+  function factor() {
+    if (peek() === '-') { next(); return { t: 'neg', x: factor() }; }
+    const b = atom();
+    if (peek() === '^') { next(); const e = next(); if (!/^\d$/.test(e || '')) throw 0; return { t: 'pow', b, e: +e }; }
+    return b;
+  }
+  function atom() {
+    const t = next();
+    if (t === undefined) throw 0;
+    if (/^[\d.]/.test(t)) return { t: 'num', v: Number(t) };
+    if (/^[a-z]$/.test(t)) return { t: 'var', n: t };
+    if (t === '(') { const e = sum(); if (next() !== ')') throw 0; return { t: 'par', x: e }; }
+    throw 0;
+  }
+  try {
+    const ast = sum();
+    if (i !== toks.length) return { error: true };
+    return { ast, hasParen: toks.includes('('), poly: toPoly(ast) };
+  } catch (e) { return { error: true }; }
+}
+/* Polynom = { Schlüssel: Koeffizient }, Schlüssel z. B. "a1b2" (Variablen sortiert), "" = Zahl ohne Variable */
+const keyObj = k => { const o = {}; (k.match(/[a-z]\d+/g) || []).forEach(m => o[m[0]] = +m.slice(1)); return o; };
+const objKey = o => Object.keys(o).sort().filter(v => o[v]).map(v => v + o[v]).join('');
+const pClean = p => { Object.keys(p).forEach(k => { if (Math.abs(p[k]) < 1e-9) delete p[k]; }); return p; };
+function pAdd(p, q, s = 1) { const r = { ...p }; for (const k in q) r[k] = (r[k] || 0) + s * q[k]; return pClean(r); }
+function pMul(p, q) {
+  const r = {};
+  for (const a in p) for (const b in q) {
+    const o = keyObj(a), o2 = keyObj(b); for (const v in o2) o[v] = (o[v] || 0) + o2[v];
+    const k = objKey(o); r[k] = (r[k] || 0) + p[a] * q[b];
+  }
+  return pClean(r);
+}
+function toPoly(n) {
+  switch (n.t) {
+    case 'num': return pClean({ '': n.v });
+    case 'var': return { [n.n + '1']: 1 };
+    case 'par': return toPoly(n.x);
+    case 'neg': return pAdd({}, toPoly(n.x), -1);
+    case 'sum': return n.parts.reduce((p, x) => pAdd(p, toPoly(x.n), x.neg ? -1 : 1), {});
+    case 'prod': return n.f.reduce((p, x) => pMul(p, toPoly(x)), { '': 1 });
+    case 'pow': { let p = { '': 1 }; const b = toPoly(n.b); for (let k = 0; k < n.e; k++) p = pMul(p, b); return p; }
+  }
+}
+const pEq = (p, q) => Object.keys(pAdd(p, q, -1)).length === 0;
+const nTerms = p => Object.keys(p).length;
+const kDeg = k => (k.match(/\d+/g) || []).reduce((s, d) => s + +d, 0);
+/* Faktoren eines Produkts: (x+3)² zählt als zwei Faktoren (x+3); Minus davor wird ignoriert. null = kein Produkt */
+function productFactors(ast) {
+  let n = ast;
+  while (n.t === 'neg' || (n.t === 'sum' && n.parts.length === 1)) n = n.t === 'neg' ? n.x : n.parts[0].n;
+  const out = [];
+  const add = x => {
+    if (x.t === 'neg') return add(x.x);
+    if (x.t === 'prod') return x.f.forEach(add);
+    if (x.t === 'pow' && x.b.t === 'par') { for (let k = 0; k < x.e; k++) out.push(toPoly(x.b)); return; }
+    out.push(toPoly(x));
+  };
+  if (n.t === 'prod' || (n.t === 'pow' && n.b.t === 'par')) { add(n); return out; }
+  return null;
+}
+/* „Primitiv“: Koeffizienten ganzzahlig ohne gemeinsamen Teiler und keine Variable in allen Gliedern */
+function primitive(p) {
+  const ks = Object.keys(p), cs = ks.map(k => p[k]);
+  if (!cs.every(c => Number.isInteger(c))) return false;
+  if (cs.reduce((g, c) => ggT(g, c), 0) !== 1) return false;
+  const vs = ks.map(keyObj);
+  return !Object.keys(vs[0]).some(v => vs.every(o => o[v]));
+}
+function gradeTerm(t, src) {
+  const r = termParse(src);
+  if (r.empty) return -1;
+  if (r.error) return 0;
+  if (!pEq(r.poly, termParse(t.target).poly)) return 0;
+  if (t.form === 'sum') {
+    const parts = r.ast.t === 'sum' ? r.ast.parts.map(p => p.n) : [r.ast];
+    return !r.hasParen && parts.length === nTerms(r.poly) && parts.every(fertigesGlied) ? 2 : 1;
+  }
+  const f = productFactors(r.ast);
+  if (!f) return 0;                                           // nicht faktorisiert – die Aufgabe ist ja gerade das Faktorisieren
+  const sums = f.filter(p => nTerms(p) >= 2);
+  if (!sums.length) return 0;
+  if (t.form === 'factor') return sums.every(primitive) ? 2 : 1;
+  if (t.form === 'binomK') {   // erst ausklammern, dann binomisch: 3x² − 27 = 3 · (x + 3) · (x − 3)
+    const ok = sums.every(p => primitive(p) && Object.keys(p).every(k => kDeg(k) <= 1)) && f.every(p => nTerms(p) >= 2 || Object.keys(p).every(k => k === ''));
+    return ok ? 2 : 1;
+  }
+  if (t.form === 'binom') return sums.every(p => primitive(p) && Object.keys(p).every(k => kDeg(k) <= 1)) && f.every(p => nTerms(p) >= 2 || (nTerms(p) === 1 && Math.abs(p['']) === 1)) ? 2 : 1;
+  return 0;
+}
+/* Ein fertiges Glied: höchstens eine Zahl, jede Variable nur einmal (3x² statt 3 · 4x oder x · x) */
+function fertigesGlied(n) {
+  const f = [];
+  const add = x => x.t === 'neg' ? add(x.x) : x.t === 'prod' ? x.f.forEach(add) : f.push(x);
+  add(n);
+  const vars = f.map(x => x.t === 'var' ? x.n : x.t === 'pow' && x.b.t === 'var' ? x.b.n : null).filter(Boolean);
+  return f.filter(x => x.t === 'num' || (x.t === 'pow' && x.b.t === 'num')).length <= 1 && new Set(vars).size === vars.length;
+}
+/* Eingabe lesbar anzeigen (Vorschau, Lehrerseite) */
+const escH = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function termHtml(src) {
+  return escH(termNorm(src)).replace(/\^(\d)/g, '<sup>$1</sup>').replace(/\*/g, ' · ').replace(/\./g, ',')
+    .replace(/([^(])([+-])/g, '$1 $2 ').replace(/-/g, '−');
+}
+
+/* ================= Terme schön schreiben ================= */
+const MI = '−';
+const X2 = v => `${v}<sup>2</sup>`;
+function glied(c, v, first) {
+  const a = Math.abs(c), s = (a === 1 && v ? '' : fmt(a)) + v;
+  return first ? (c < 0 ? MI : '') + s : (c < 0 ? ` ${MI} ` : ' + ') + s;
+}
+/* poly([3, X2('x')], [-5, 'x'], [2, '']) → „3x² − 5x + 2“ */
+function poly(...gl) { let out = '', first = true; for (const [c, v] of gl) { if (!c) continue; out += glied(c, v, first); first = false; } return out || '0'; }
+const pk = n => n < 0 ? `(${MI}${fmt(-n)})` : fmt(n);           // Zahl in einer Malaufgabe, negativ mit Klammer
+const tgt = html => html.replace(/<sup>(\d)<\/sup>/g, '^$1');   // Anzeige → Eingabe-Schreibweise für die Bewertung
+const sgn = () => pick([1, -1]);
+const big = s => `<div class="big">${s}</div>`;
+const termTask = (o) => Object.assign({ type: 'term', target: tgt(o.ansHtml) }, o);
+
+/* ---------- Aufgabengeneratoren ----------
+   Jede Aufgabe: { title, q, type: 'term'|'num'|'mc', ..., hint, sol:[Schritte] }
+   'term': ansHtml (Musterlösung), target (zum Vergleichen), form ('sum'|'factor'|'binom'), vars (Tasten) */
+const G = {
+  /* ===== I.1a Ausmultiplizieren ===== */
+  ausmultZahl() {
+    const v = pick(['x', 'a', 'y']), k = pick([-2, -3, -4, -5, 2, 3, 4, 5, 6]), a = R(2, 6), b = R(1, 9) * sgn();
+    const res = poly([k * a, v], [k * b, '']);
+    return termTask({
+      title: 'Ausmultiplizieren', q: `Multipliziere aus.${big(`${glied(k, '', true)} · (${poly([a, v], [b, ''])})`)}`, form: 'sum', vars: [v], ansHtml: res,
+      hint: 'Die Zahl vor der Klammer wird mit jedem Teil in der Klammer multipliziert. Ein Minus gehört zur Zahl dahinter: plus · minus = minus, minus · minus = plus.',
+      sol: [`= ${pk(k)} · ${a}${v} + ${pk(k)} · ${pk(b)}`, `= ${res}`]
+    });
+  },
+  ausmultVar() {
+    const v = pick(['x', 'a']), w = v === 'x' ? 'y' : 'b', k = R(2, 5) * sgn(), a = R(2, 5), b = R(1, 7) * sgn(), zwei = rand() < .4;
+    const inner = poly([a, v], [b, zwei ? w : '']);
+    const res = poly([k * a, X2(v)], [k * b, v + (zwei ? w : '')]);
+    return termTask({
+      title: 'Ausmultiplizieren', q: `Multipliziere aus.${big(`${glied(k, v, true)} · (${inner})`)}`, form: 'sum', vars: zwei ? [v, w] : [v], ansHtml: res,
+      hint: `Multipliziere ${glied(k, v, true)} mit jedem Teil in der Klammer. ${v} · ${v} = ${X2(v)}. Achte auf die Vorzeichen.`,
+      sol: [`= ${k < 0 ? `(${glied(k, v, true)})` : glied(k, v, true)} · ${a}${v} + ${k < 0 ? `(${glied(k, v, true)})` : glied(k, v, true)} · ${b < 0 ? `(${glied(b, zwei ? w : '', true)})` : glied(b, zwei ? w : '', true)}`, `= ${res}`]
+    });
+  },
+
+  /* ===== I.1b Ausklammern ===== */
+  ausklZahl() {
+    let g, a, b;
+    do { g = R(2, 9); a = R(1, 6); b = R(1, 9); } while (ggT(a, b) !== 1 || g * a > 54 || g * b > 72);
+    const v = pick(['x', 'a', 'y']), s = sgn();
+    const ans = `${g} · (${poly([a, v], [s * b, ''])})`;
+    return termTask({
+      title: 'Ausklammern', q: `Klammere einen möglichst großen Faktor aus.${big(poly([g * a, v], [s * g * b, '']))}`, form: 'factor', vars: [v], ansHtml: ans,
+      hint: 'Suche die größte Zahl, durch die beide Zahlen teilbar sind. Sie kommt vor die Klammer, der Rest in die Klammer. Probe: Rechne die Klammer wieder aus.',
+      sol: [`${glied(g * a, v, true)} = ${g} · ${glied(a, v, true)}   und   ${g * b} = ${g} · ${b}`, `= ${ans}`]
+    });
+  },
+  ausklVar() {
+    let g, a, b;
+    do { g = R(2, 6); a = R(1, 5); b = R(1, 7); } while (ggT(a, b) !== 1);
+    const v = pick(['x', 'a']), s = sgn();
+    const ans = `${glied(g, v, true)} · (${poly([a, v], [s * b, ''])})`;
+    return termTask({
+      title: 'Ausklammern', q: `Klammere einen möglichst großen Faktor aus.${big(poly([g * a, X2(v)], [s * g * b, v]))}`, form: 'factor', vars: [v], ansHtml: ans,
+      hint: `In beiden Teilen steckt eine Zahl und ein ${v}. Klammere beides aus: die größte gemeinsame Zahl und ${v}.`,
+      sol: [`${glied(g * a, X2(v), true)} = ${g} · ${v} · ${glied(a, v, true)}   und   ${g * b}${v} = ${g} · ${v} · ${b}`, `= ${ans}`]
+    });
+  },
+  ausklZwei() {   // wie im Skript: 8x − 14xy = 2x · (4 − 7y)
+    let g, a, b;
+    do { g = R(2, 6); a = R(2, 7); b = R(2, 7); } while (ggT(a, b) !== 1);
+    const s = sgn();
+    const ans = `${g}x · (${poly([a, ''], [s * b, 'y'])})`;
+    return termTask({
+      title: 'Ausklammern', q: `Klammere einen möglichst großen Faktor aus.${big(poly([g * a, 'x'], [s * g * b, 'xy']))}`, form: 'factor', vars: ['x', 'y'], ansHtml: ans,
+      hint: 'Zerlege beide Teile in kleine Malaufgaben. Was in beiden steckt, kommt vor die Klammer – so viel wie möglich. Bleibt nur eine Zahl übrig, steht sie allein in der Klammer.',
+      sol: [`${g * a}x = ${g} · ${a} · x   und   ${g * b}xy = ${g} · ${b} · x · y`, `= ${ans}`]
+    });
+  },
+
+  /* ===== I.2 Summen multiplizieren ===== */
+  summenXX() {
+    let a, b;
+    do { a = R(1, 9) * sgn(); b = R(1, 9) * sgn(); } while (Math.abs(a) === Math.abs(b));
+    const v = pick(['x', 'a', 'y']), res = poly([1, X2(v)], [a + b, v], [a * b, '']);
+    return termTask({
+      title: 'Summen multiplizieren', q: `Multipliziere aus und fasse zusammen.${big(`(${poly([1, v], [a, ''])}) · (${poly([1, v], [b, ''])})`)}`, form: 'sum', vars: [v], ansHtml: res,
+      hint: 'Jeder Teil der ersten Klammer wird mit jedem Teil der zweiten Klammer multipliziert – vier Bögen, vier Felder. Danach gleiche Glieder zusammenfassen.',
+      sol: [`= ${v} · ${v} + ${v} · ${pk(b)} + ${pk(a)} · ${v} + ${pk(a)} · ${pk(b)}`, `= ${poly([1, X2(v)], [b, v], [a, v], [a * b, ''])}`, `= ${res}`]
+    });
+  },
+  summenXY() {
+    const a = R(1, 9) * sgn(), b = R(1, 9) * sgn(), res = poly([1, 'xy'], [b, 'x'], [a, 'y'], [a * b, '']);
+    return termTask({
+      title: 'Summen multiplizieren', q: `Multipliziere aus.${big(`(${poly([1, 'x'], [a, ''])}) · (${poly([1, 'y'], [b, ''])})`)}`, form: 'sum', vars: ['x', 'y'], ansHtml: res,
+      hint: 'Jeder Teil der ersten Klammer wird mit jedem Teil der zweiten Klammer multipliziert – vier Bögen, vier Felder. Ein Minus gehört zur Zahl dahinter.',
+      sol: [`= x · y + x · ${pk(b)} + ${pk(a)} · y + ${pk(a)} · ${pk(b)}`, `= ${res}`]
+    });
+  },
+  summen2() {
+    let k, a, b;
+    do { k = R(2, 4); a = R(1, 7) * sgn(); b = R(1, 6) * sgn(); } while (k * b + a === 0);
+    const v = pick(['x', 'a']), res = poly([k, X2(v)], [k * b + a, v], [a * b, '']);
+    return termTask({
+      title: 'Summen multiplizieren', q: `Multipliziere aus und fasse zusammen.${big(`(${poly([k, v], [a, ''])}) · (${poly([1, v], [b, ''])})`)}`, form: 'sum', vars: [v], ansHtml: res,
+      hint: 'Vier Bögen: jeder Teil der ersten Klammer mal jeder Teil der zweiten. Dann die beiden Glieder mit ' + v + ' zusammenfassen.',
+      sol: [`= ${k}${v} · ${v} + ${k}${v} · ${pk(b)} + ${pk(a)} · ${v} + ${pk(a)} · ${pk(b)}`, `= ${poly([k, X2(v)], [k * b, v], [a, v], [a * b, ''])}`, `= ${res}`]
+    });
+  },
+
+  /* ===== I.3 Binomische Formeln ===== */
+  binom1() { return binomTask(1, 1); },
+  binom1k() { return binomTask(1, R(2, 3)); },
+  binom2() { return binomTask(2, 1); },
+  binom2k() { return binomTask(2, R(2, 3)); },
+  binom3() { return binomTask(3, rand() < .3 ? R(2, 3) : 1); },
+  binom3k() { return binomTask(3, R(2, 4)); },
+  /* Kopfrechnen: Taschenrechner ist erlaubt – darum wird der Schritt der Formel gefragt, nicht das Ergebnis */
+  kopf1() {
+    const t = R(2, 9) * 10, u = R(1, 3), n = t + u;
+    return { title: 'Kopfrechnen mit der 1. binomischen Formel', q: `So rechnet man ${n}² mit der 1. binomischen Formel im Kopf. Welche Zahl gehört in das Kästchen?${big(`${n}<sup>2</sup> = (${t} + ${u})<sup>2</sup> = ${fmt(t * t)} + □ + ${u * u}`)}`, type: 'num', ans: 2 * t * u, pre: '□ =',
+      hint: `Das Mittelstück ist 2 · a · b – hier also 2 · ${t} · ${u}.`,
+      sol: [`(${t} + ${u})² = ${t}² + 2 · ${t} · ${u} + ${u}²`, `= ${fmt(t * t)} + ${2 * t * u} + ${u * u} = ${fmt(n * n)}`, `□ = ${2 * t * u}`] };
+  },
+  kopf2() {
+    const t = R(2, 10) * 10, u = R(1, 3), n = t - u;
+    return { title: 'Kopfrechnen mit der 2. binomischen Formel', q: `So rechnet man ${n}² mit der 2. binomischen Formel im Kopf. Welche Zahl gehört in das Kästchen?${big(`${n}<sup>2</sup> = (${t} − ${u})<sup>2</sup> = ${fmt(t * t)} − □ + ${u * u}`)}`, type: 'num', ans: 2 * t * u, pre: '□ =',
+      hint: `Das Mittelstück ist 2 · a · b – hier also 2 · ${t} · ${u}. Das Minus steht schon davor.`,
+      sol: [`(${t} − ${u})² = ${t}² − 2 · ${t} · ${u} + ${u}²`, `= ${fmt(t * t)} − ${2 * t * u} + ${u * u} = ${fmt(n * n)}`, `□ = ${2 * t * u}`] };
+  },
+  kopf3() {
+    const t = R(2, 10) * 10, u = R(2, 4);
+    return { title: 'Kopfrechnen mit der 3. binomischen Formel', q: `So rechnet man ${t + u} · ${t - u} mit der 3. binomischen Formel im Kopf. Welche Zahl gehört in das Kästchen?${big(`${t + u} · ${t - u} = (${t} + ${u}) · (${t} − ${u}) = ${fmt(t * t)} − □`)}`, type: 'num', ans: u * u, pre: '□ =',
+      hint: `(a + b) · (a − b) = a² − b². Hier ist b = ${u}.`,
+      sol: [`(${t} + ${u}) · (${t} − ${u}) = ${t}² − ${u}²`, `= ${fmt(t * t)} − ${u * u} = ${fmt(t * t - u * u)}`, `□ = ${u * u}`] };
+  },
+
+  /* ===== I.4 Faktorisieren mit binomischen Formeln ===== */
+  faktor12() { return faktorTask(R(1, 9), 1); },
+  faktor12k() { let k, a; do { k = R(2, 3); a = R(1, 5); } while (ggT(k, a) !== 1); return faktorTask(a, k); },
+  faktorCheck() {
+    const a = R(2, 7), v = 'x';
+    const right = poly([1, X2(v)], [2 * a, v], [a * a, '']);
+    const opts = shuffle([right, poly([1, X2(v)], [2 * a, v], [(a + 1) * (a + 1), '']), poly([1, X2(v)], [a, v], [a * a, '']), poly([1, X2(v)], [a * a, ''])]);
+    return { title: 'Passt das Mittelstück?', q: 'Welcher Term lässt sich mit einer binomischen Formel faktorisieren?', type: 'mc', options: opts, ans: right,
+      hint: 'Suche bei jedem Term die zwei Quadrate und lies ihre Seiten ab. Prüfe dann: Ist das Mittelstück genau 2 · Seite · Seite?',
+      sol: [`${right}: Quadrate ${X2(v)} und ${a * a} = ${a}², Mittelstück 2 · ${v} · ${a} = ${2 * a}${v} ✓`, `= (${v} + ${a})<sup>2</sup>`, 'Bei den anderen passt das Mittelstück nicht (oder es fehlt).'] };
+  },
+  faktor3() { return faktor3Task(R(2, 10), 1); },
+  faktor3k() { let k, a; do { k = R(2, 3); a = R(1, 7); } while (ggT(k, a) !== 1); return faktor3Task(a, k); },
+
+  /* ===== I.5 Gleichungen mit Klammern ===== */
+  gleichungBinom() {
+    const a = R(1, 6), x0 = R(1, 9), plus = rand() < .55;
+    const s = plus ? 1 : -1, d = a * a + s * 2 * a * x0;   // (x ± a)² = x² + d
+    if (d === 0) return G.gleichungBinom();
+    const L = `(x ${plus ? '+' : MI} ${a})<sup>2</sup>`, Rt = poly([1, X2('x')], [plus ? d : d, '']);
+    const exp = poly([1, X2('x')], [s * 2 * a, 'x'], [a * a, '']);
+    return { title: 'Gleichung mit Klammern', q: `Löse die Gleichung.${big(`${L} = ${Rt}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: 'Löse zuerst die Klammer mit der binomischen Formel auf. Dann fällt x² auf beiden Seiten weg. Danach wie gewohnt umformen, bis x allein steht.',
+      sol: [`${exp} = ${Rt}`, `${poly([s * 2 * a, 'x'], [a * a, ''])} = ${fmt(d)}   | x² auf beiden Seiten weg`, `${poly([s * 2 * a, 'x'])} = ${fmt(d - a * a)}`, `x = ${x0}`,
+        `Probe: (${x0} ${plus ? '+' : MI} ${a})² = ${(x0 + s * a) ** 2}  und  ${x0}² ${d < 0 ? MI : '+'} ${Math.abs(d)} = ${x0 * x0 + d} ✓`] };
+  },
+  gleichungLinear() {   // a · (x − b) − (x + c) = r
+    const k = R(2, 5), b = R(1, 6), c = R(1, 9), x0 = R(2, 10), r = k * (x0 - b) - (x0 + c);
+    return { title: 'Gleichung mit Klammern', q: `Löse die Gleichung.${big(`${k} · (x ${MI} ${b}) ${MI} (x + ${c}) = ${fmt(r)}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: 'Löse beide Klammern auf. Das Minus vor der zweiten Klammer dreht jedes Vorzeichen in der Klammer um. Dann zusammenfassen und umformen.',
+      sol: [`${poly([k, 'x'], [-k * b, ''])} ${MI} x ${MI} ${c} = ${fmt(r)}`, `${poly([k - 1, 'x'], [-k * b - c, ''])} = ${fmt(r)}`, `${poly([k - 1, 'x'])} = ${fmt(r + k * b + c)}`, `x = ${x0}`] };
+  },
+  minusBinom() {
+    const a = R(1, 7), v = pick(['x', 'a']), typ = R(0, 2);
+    if (typ < 2) {   // x² − (x ± a)²
+      const s = typ === 0 ? -1 : 1, exp = poly([1, X2(v)], [s * 2 * a, v], [a * a, '']);
+      const res = poly([-s * 2 * a, v], [-a * a, '']);
+      return termTask({ title: 'Minus vor einer Klammer', q: `Vereinfache so weit wie möglich.${big(`${X2(v)} ${MI} (${v} ${s > 0 ? '+' : MI} ${a})<sup>2</sup>`)}`, form: 'sum', vars: [v], ansHtml: res,
+        hint: 'Hoch vor Punkt vor Strich: Erst die binomische Formel ausrechnen und das Ergebnis in eine Klammer schreiben. Dann dreht das Minus jedes Vorzeichen in der Klammer um.',
+        sol: [`= ${X2(v)} ${MI} (${exp})`, `= ${X2(v)} ${MI} ${X2(v)}${glied(-s * 2 * a, v, false)}${glied(-a * a, '', false)}`, `= ${res}`] });
+    }
+    // 2x² − (x + a)(x − a)
+    const res = poly([1, X2(v)], [a * a, '']);
+    return termTask({ title: 'Minus vor einer Klammer', q: `Vereinfache so weit wie möglich.${big(`2${X2(v)} ${MI} (${v} + ${a}) · (${v} ${MI} ${a})`)}`, form: 'sum', vars: [v], ansHtml: res,
+      hint: 'Erst das Produkt mit der 3. binomischen Formel ausrechnen und in eine Klammer schreiben. Dann dreht das Minus jedes Vorzeichen in der Klammer um.',
+      sol: [`= 2${X2(v)} ${MI} (${X2(v)} ${MI} ${a * a})`, `= 2${X2(v)} ${MI} ${X2(v)} + ${a * a}`, `= ${res}`] });
+  },
+  minusLinear() {   // (x + a)² − (x² + b x)
+    const a = R(1, 6), b = R(1, 9), v = 'x', res = poly([2 * a - b, v], [a * a, '']);
+    return termTask({ title: 'Minus vor einer Klammer', q: `Vereinfache so weit wie möglich.${big(`(x + ${a})<sup>2</sup> ${MI} (${X2(v)} + ${b}x)`)}`, form: 'sum', vars: [v], ansHtml: res,
+      hint: 'Löse die erste Klammer mit der binomischen Formel auf. Das Minus vor der zweiten Klammer dreht jedes Vorzeichen darin um.',
+      sol: [`= ${poly([1, X2(v)], [2 * a, v], [a * a, ''])} ${MI} ${X2(v)} ${MI} ${b}x`, `= ${res}`] });
+  },
+  raetselMaschine() {
+    const a = R(2, 5), x0 = R(2, 12), c = 2 * a * x0 + a * a;
+    return { title: 'Zahlenrätsel', q: `„Ich denke mir eine Zahl. Ich addiere <b>${a}</b>, nehme das Ergebnis mal sich selbst und ziehe dann meine Zahl mal sich selbst ab. Ich erhalte <b>${c}</b>.“<br>Welche Zahl habe ich mir gedacht?`, type: 'num', ans: x0, pre: 'Zahl:',
+      hint: `Schreibe x für die gedachte Zahl: (x + ${a})² − x² = ${c}. Löse die Klammer mit der binomischen Formel auf – x² fällt weg.`,
+      sol: [`(x + ${a})² − x² = ${c}`, `x² + ${2 * a}x + ${a * a} − x² = ${c}`, `${2 * a}x + ${a * a} = ${c}`, `${2 * a}x = ${c - a * a}`, `x = ${x0}`] };
+  },
+  raetselMal() {
+    const a = R(2, 9), k = R(2, 7), x0 = R(1, 12), c = k * (x0 + a);
+    return { title: 'Zahlenrätsel', q: `„Ich addiere zu meiner Zahl <b>${a}</b> und nehme die Summe mal <b>${k}</b>. Ich erhalte <b>${c}</b>.“<br>Welche Zahl ist es?`, type: 'num', ans: x0, pre: 'Zahl:',
+      hint: `Schreibe x für die Zahl. Die Summe kommt in eine Klammer: (x + ${a}) · ${k} = ${c}.`,
+      sol: [`(x + ${a}) · ${k} = ${c}`, `${k}x + ${k * a} = ${c}`, `${k}x = ${c - k * a}`, `x = ${x0}`] };
+  },
+  raetselRechteck() {
+    const d = R(2, 6), x0 = R(3, 12), u = 2 * (2 * x0 + d);
+    return { title: 'Sachaufgabe', q: `Ein Rechteck ist <b>${d} cm</b> länger als breit. Sein Umfang beträgt <b>${u} cm</b>. Wie breit ist das Rechteck?`, type: 'num', ans: x0, pre: 'Breite:', post: 'cm',
+      hint: `Breite = x, Länge = x + ${d}. Umfang = 2 · (Länge + Breite).`,
+      sol: [`2 · (x + x + ${d}) = ${u}`, `4x + ${2 * d} = ${u}`, `4x = ${u - 2 * d}`, `x = ${x0}  (Breite ${x0} cm, Länge ${x0 + d} cm)`] };
+  },
+
+  /* ===== I.6 Bruchgleichungen ===== */
+  bruchX() {   // k/x + a = b
+    const x0 = R(2, 6), a = R(1, 4), m = R(1, 4), b = a + m, k = m * x0;
+    return { title: 'Bruchgleichung', q: `Löse die Gleichung.${big(`${frac(k, 'x')} + ${a} = ${b}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: 'x darf nicht 0 sein. Der Hauptnenner ist x: Nimm jeden Teil der Gleichung mal x – auch die Zahl ohne Bruch. Dann wie gewohnt lösen.',
+      sol: ['x darf nicht 0 sein. Hauptnenner: x', `${k} + ${glied(a, 'x', true)} = ${b}x`, `${k} = ${glied(m, 'x', true)}`, `x = ${x0}`, `Probe: ${fmt(k / x0)} + ${a} = ${b} ✓`] };
+  },
+  bruchHN() {   // x/p + x/q = c
+    const [p, q, hn] = pick([[2, 3, 6], [2, 4, 4], [3, 6, 6], [2, 5, 10], [4, 6, 12], [3, 4, 12]]), x0 = hn * R(1, 3), c = x0 / p + x0 / q;
+    return { title: 'Bruchgleichung', q: `Löse die Gleichung.${big(`${frac('x', p)} + ${frac('x', q)} = ${c}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: `Finde den Hauptnenner von ${p} und ${q} und nimm jeden Teil der Gleichung damit mal. Dann kürzen – die Brüche verschwinden.`,
+      sol: [`Hauptnenner: ${hn}`, `${glied(hn / p, 'x', true)} + ${glied(hn / q, 'x', true)} = ${c * hn}`, `${glied(hn / p + hn / q, 'x', true)} = ${c * hn}`, `x = ${x0}`] };
+  },
+  bruch2x() {   // k/(2x) + a = b
+    const x0 = R(1, 5), a = R(1, 3), m = R(1, 3), b = a + m, k = 2 * m * x0;
+    return { title: 'Bruchgleichung', q: `Löse die Gleichung.${big(`${frac(k, '2x')} + ${a} = ${b}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: 'x darf nicht 0 sein. Hauptnenner: 2x. Nimm jeden Teil mal 2x und kürze.',
+      sol: ['x darf nicht 0 sein. Hauptnenner: 2x', `${k} + ${2 * a}x = ${2 * b}x`, `${k} = ${2 * m}x`, `x = ${x0}`] };
+  },
+
+  /* ===== Wiederholung (Klasse 7): Dreisatz ===== */
+  dreisatz() {
+    const [pl, sg, preise] = pick([['Hefte', 'Heft', [0.8, 1.2, 1.5, 2]], ['Brezeln', 'Brezel', [0.6, 0.8, 0.9, 1.2]], ['Kugeln Eis', 'Kugel', [1.2, 1.5, 2]], ['Busfahrkarten', 'Karte', [1.5, 2.5, 3]]]);
+    const p = pick(preise), n = pick([2, 3, 4, 5]), m = pick([6, 7, 8, 10]);
+    const eu = x => x.toFixed(2).replace('.', ',');
+    return { title: 'Dreisatz', q: `${n} ${pl} kosten <b>${eu(n * p)} €</b>. Wie viel kosten <b>${m} ${pl}</b>?`, type: 'num', ans: Math.round(m * p * 100) / 100, post: '€',
+      hint: `Rechne zuerst aus, was 1 ${sg} kostet: teilen durch ${n}. Dann mal ${m}.`,
+      sol: [`${n} ${pl} → ${eu(n * p)} €`, `1 ${sg} → ${eu(n * p)} € : ${n} = ${eu(p)} €`, `${m} ${pl} → ${eu(p)} € · ${m} = ${eu(m * p)} €`] };
+  }
+};
+function binomTask(nr, k) {
+  const v = pick(['x', 'a', 'y']), a = k === 1 ? R(1, 9) : pick([1, 2, 3, 4, 5].filter(z => ggT(z, k) === 1));
+  const kv = glied(k, v, true), kvq = k === 1 ? X2(v) : `(${kv})<sup>2</sup>`;
+  const titles = { 1: '1. binomische Formel', 2: '2. binomische Formel', 3: '3. binomische Formel' };
+  if (nr === 3) {
+    const res = poly([k * k, X2(v)], [-a * a, '']), first = rand() < .5;
+    const f1 = `(${kv} + ${a})`, f2 = `(${kv} ${MI} ${a})`;
+    return termTask({ title: titles[3], q: `Forme mit einer binomischen Formel um.${big(first ? `${f1} · ${f2}` : `${f2} · ${f1}`)}`, form: 'sum', vars: [v], ansHtml: res,
+      hint: '(a + b) · (a − b) = a² − b². Es gibt kein Mittelstück – die beiden Rechtecke heben sich auf.',
+      sol: [`= ${kvq} ${MI} ${a}²`, `= ${res}`] });
+  }
+  const s = nr === 1 ? 1 : -1, res = poly([k * k, X2(v)], [s * 2 * k * a, v], [a * a, '']);
+  return termTask({ title: titles[nr], q: `Forme mit einer binomischen Formel um.${big(`(${kv} ${s > 0 ? '+' : MI} ${a})<sup>2</sup>`)}`, form: 'sum', vars: [v], ansHtml: res,
+    hint: nr === 1 ? '(a + b)² = a² + 2ab + b². Vergiss das Mittelstück 2ab nicht – (a + b)² ist nicht a² + b²!' : '(a − b)² = a² − 2ab + b². Das Mittelstück bekommt ein Minus, b² bleibt plus.',
+    sol: [`= ${kvq} ${s > 0 ? '+' : MI} 2 · ${kv} · ${a} + ${a}²`, `= ${res}`] });
+}
+function faktorTask(a, k) {
+  const v = pick(['x', 'a', 'y']), s = sgn(), kv = glied(k, v, true);
+  const term = poly([k * k, X2(v)], [s * 2 * k * a, v], [a * a, '']);
+  const ans = `(${kv} ${s > 0 ? '+' : MI} ${a})<sup>2</sup>`;
+  return termTask({ title: 'Faktorisieren', q: `Faktorisiere mit einer binomischen Formel.${big(term)}`, form: 'binom', vars: [v], ansHtml: ans,
+    hint: 'Suche die zwei Quadrate und lies ihre Seiten ab. Prüfe das Mittelstück: Ist es genau 2 · Seite · Seite? Plus in der Mitte → (a + b)², Minus → (a − b)².',
+    sol: [`Quadrate: ${glied(k * k, X2(v), true)} = ${k === 1 ? `${v} · ${v}` : `(${kv})²`}   und   ${a * a} = ${a} · ${a}`, `Mittelstück: 2 · ${kv} · ${a} = ${glied(2 * k * a, v, true)} ✓`, `= ${ans}`] });
+}
+function faktor3Task(a, k) {
+  const v = pick(['x', 'a', 'y']), kv = glied(k, v, true);
+  const term = poly([k * k, X2(v)], [-a * a, '']), ans = `(${kv} + ${a}) · (${kv} ${MI} ${a})`;
+  return termTask({ title: 'Faktorisieren', q: `Faktorisiere mit einer binomischen Formel.${big(term)}`, form: 'binom', vars: [v], ansHtml: ans,
+    hint: 'Zwei Quadrate mit Minus dazwischen: a² − b² = (a + b) · (a − b). Lies die Seiten der beiden Quadrate ab.',
+    sol: [`Quadrate: ${glied(k * k, X2(v), true)} = ${k === 1 ? `${v} · ${v}` : `(${kv})²`}   und   ${a * a} = ${a} · ${a}`, `= ${ans}`] });
+}
+
+
+/* ---------- Meisterklasse: schwerere, verknüpfte Aufgaben (nur in der Regatta) ---------- */
+function skRechteckTerm(la, lb) {
+  return `<svg viewBox="0 0 270 190" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+    <rect x="30" y="20" width="180" height="110" fill="#fde68a" stroke="#b45309" stroke-width="3"/>
+    <text x="120" y="82" text-anchor="middle" font-size="20" font-weight="700" fill="#c2410c">A = ?</text>
+    <text x="120" y="160" text-anchor="middle" font-size="18" font-weight="600">${la}</text>
+    <text x="218" y="82" font-size="18" font-weight="600">${lb}</text></svg>`;
+}
+Object.assign(G, {
+  vereinfacheMix() {   // (x + a)² − (x + b)(x − b)
+    const a = R(2, 7), b = R(2, 7), s = sgn(), v = 'x';
+    const res = poly([2 * a * s, v], [a * a + b * b, '']);
+    return termTask({ title: 'Vereinfachen', q: `Vereinfache so weit wie möglich.${big(`(x ${s > 0 ? '+' : MI} ${a})<sup>2</sup> ${MI} (x + ${b}) · (x ${MI} ${b})`)}`, form: 'sum', vars: [v], ansHtml: res,
+      hint: 'Rechne beide Produkte mit den binomischen Formeln aus und schreibe das zweite Ergebnis in eine Klammer. Das Minus davor dreht jedes Vorzeichen um.',
+      sol: [`= ${poly([1, X2(v)], [2 * a * s, v], [a * a, ''])} ${MI} (${X2(v)} ${MI} ${b * b})`, `= ${poly([1, X2(v)], [2 * a * s, v], [a * a, ''])} ${MI} ${X2(v)} + ${b * b}`, `= ${res}`] });
+  },
+  faktorAus() {   // k·x² − k·a²  oder  k·x² ± 2ka·x + k·a²
+    const k = R(2, 5), a = R(1, 6), v = pick(['x', 'a']), typ = R(0, 1), s = sgn();
+    if (typ === 0) {
+      const ans = `${k} · (${v} + ${a}) · (${v} ${MI} ${a})`;
+      return termTask({ title: 'Erst ausklammern, dann faktorisieren', q: `Faktorisiere so weit wie möglich.${big(poly([k, X2(v)], [-k * a * a, '']))}`, form: 'binomK', vars: [v], ansHtml: ans,
+        hint: `Klammere zuerst ${k} aus. In der Klammer steht dann eine 3. binomische Formel.`,
+        sol: [`= ${k} · (${X2(v)} ${MI} ${a * a})`, `= ${ans}`] });
+    }
+    const ans = `${k} · (${v} ${s > 0 ? '+' : MI} ${a})<sup>2</sup>`;
+    return termTask({ title: 'Erst ausklammern, dann faktorisieren', q: `Faktorisiere so weit wie möglich.${big(poly([k, X2(v)], [s * 2 * k * a, v], [k * a * a, '']))}`, form: 'binomK', vars: [v], ansHtml: ans,
+      hint: `Klammere zuerst ${k} aus. In der Klammer steht dann eine 1. oder 2. binomische Formel – prüfe das Mittelstück.`,
+      sol: [`= ${k} · (${poly([1, X2(v)], [s * 2 * a, v], [a * a, ''])})`, `= ${ans}`] });
+  },
+  rechteckFlaeche() {   // A = (k·x + a)(x + b)
+    const k = R(2, 4), a = R(1, 6), b = R(1, 8);
+    const res = poly([k, X2('x')], [k * b + a, 'x'], [a * b, '']);
+    const la = `${k}x + ${a}`, lb = `x + ${b}`;
+    return termTask({ title: 'Flächeninhalt als Term', q: `Ein Rechteck ist <b>${la}</b> lang und <b>${lb}</b> breit (in cm). Gib den Flächeninhalt als Summe an.`, sketch: skRechteckTerm(la, lb), form: 'sum', vars: ['x'], ansHtml: res,
+      hint: 'Flächeninhalt = Länge · Breite. Multipliziere die beiden Summen – jeder Teil mit jedem – und fasse zusammen.',
+      sol: [`A = (${la}) · (${lb})`, `= ${poly([k, X2('x')], [k * b, 'x'], [a, 'x'], [a * b, ''])}`, `= ${res}`] });
+  },
+  gleichungZweiBinome() {   // (x + a)² − (x − b)² = c
+    const a = R(1, 5), b = R(1, 5), x0 = R(1, 9), c = (x0 + a) ** 2 - (x0 - b) ** 2;
+    return { title: 'Gleichung mit zwei Klammern', q: `Löse die Gleichung.${big(`(x + ${a})<sup>2</sup> ${MI} (x ${MI} ${b})<sup>2</sup> = ${fmt(c)}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: 'Rechne beide Klammern mit den binomischen Formeln aus. Die zweite Klammer bleibt stehen, das Minus davor dreht alle Vorzeichen um. x² fällt weg.',
+      sol: [`${poly([1, X2('x')], [2 * a, 'x'], [a * a, ''])} ${MI} (${poly([1, X2('x')], [-2 * b, 'x'], [b * b, ''])}) = ${fmt(c)}`, `${poly([2 * a + 2 * b, 'x'], [a * a - b * b, ''])} = ${fmt(c)}`, `${2 * a + 2 * b}x = ${fmt(c - a * a + b * b)}`, `x = ${x0}`] };
+  },
+  gleichungProdukt() {   // (x + a)(x − b) = x² + d
+    let a, b; do { a = R(1, 9); b = R(1, 9); } while (a === b);
+    const x0 = R(1, 10), d = (a - b) * x0 - a * b;
+    return { title: 'Gleichung mit Summen', q: `Löse die Gleichung.${big(`(x + ${a}) · (x ${MI} ${b}) = ${poly([1, X2('x')], [d, ''])}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: 'Multipliziere die beiden Klammern aus (jeder Teil mit jedem). Dann fällt x² weg.',
+      sol: [`${poly([1, X2('x')], [a - b, 'x'], [-a * b, ''])} = ${poly([1, X2('x')], [d, ''])}`, `${poly([a - b, 'x'])} = ${fmt(d + a * b)}`, `x = ${x0}`] };
+  },
+  raetselFlaeche() {   // Rechteck: Länge = Breite + d; Länge − p, Breite + q → Fläche um k kleiner
+    let d, p, q, x0, k;
+    do { d = R(3, 8); p = R(2, 5); q = R(1, p - 1); x0 = R(3, 12); k = (p - q) * x0 - q * (d - p); } while (k <= 0 || d <= p);
+    return { title: 'Sachaufgabe Rechteck', q: `Ein Rechteck ist <b>${d} cm</b> länger als breit. Verkürzt man die längere Seite um <b>${p} cm</b> und verlängert die kürzere um <b>${q} cm</b>, wird der Flächeninhalt um <b>${k} cm²</b> kleiner. Wie breit ist das Rechteck?`, type: 'num', ans: x0, pre: 'Breite:', post: 'cm',
+      hint: `Breite x, Länge x + ${d}. Neues Rechteck: Länge x + ${d - p}, Breite x + ${q}. Gleichung: x · (x + ${d}) − ${k} = (x + ${d - p}) · (x + ${q}).`,
+      sol: [`x · (x + ${d}) − ${k} = (x + ${d - p}) · (x + ${q})`, `${poly([1, X2('x')], [d, 'x'], [-k, ''])} = ${poly([1, X2('x')], [d - p + q, 'x'], [q * (d - p), ''])}`, `${poly([p - q, 'x'])} = ${k + q * (d - p)}`, `x = ${x0}  (Breite ${x0} cm, Länge ${x0 + d} cm)`] };
+  },
+  bruchMix() {   // a/x + b/(2x) = c
+    let a, b, c, x0;
+    do { x0 = R(1, 6); c = R(1, 3); a = R(1, 6); b = 2 * c * x0 - 2 * a; } while (b <= 0);
+    return { title: 'Bruchgleichung', q: `Löse die Gleichung.${big(`${frac(a, 'x')} + ${frac(b, '2x')} = ${c}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: 'x darf nicht 0 sein. Hauptnenner: 2x. Nimm jeden Teil der Gleichung mal 2x und kürze.',
+      sol: ['x darf nicht 0 sein. Hauptnenner: 2x', `${2 * a} + ${b} = ${2 * c}x`, `${2 * a + b} = ${2 * c}x`, `x = ${x0}`] };
+  },
+  bruchZaehler() {   // (x + p)/m − (x − q)/n = c  mit n = m + 1
+    let m, n, p, q, x0, c;
+    do { m = R(2, 4); n = m + 1; p = R(1, 6); q = R(1, 6); x0 = R(1, 30); c = (x0 + n * p + m * q) / (m * n); } while (!Number.isInteger(c) || c < 1);
+    return { title: 'Bruchgleichung mit x im Zähler', q: `Löse die Gleichung.${big(`${frac(`x + ${p}`, m)} ${MI} ${frac(`x ${MI} ${q}`, n)} = ${c}`)}`, type: 'num', ans: x0, pre: 'x =',
+      hint: `Hauptnenner ${m * n}. Nimm alles mal ${m * n} und kürze. Der Zähler wird dabei zu einer Klammer – und vor der zweiten Klammer steht ein Minus!`,
+      sol: [`Hauptnenner: ${m * n}`, `${n} · (x + ${p}) ${MI} ${m} · (x ${MI} ${q}) = ${c * m * n}`, `${n}x + ${n * p} ${MI} ${m}x + ${m * q} = ${c * m * n}`, `x + ${n * p + m * q} = ${c * m * n}`, `x = ${x0}`] };
+  }
+});
+const BEGRIFFE = {};
+
+/* ---------- Regatten ---------- */
+const RACES = [
+  { name: 'Clubregatta Gaienhofen', sub: 'Ausmultiplizieren und Ausklammern', n: 5, soll: 8 * 60,
+    gens: ['ausmultZahl', 'ausmultVar', 'ausklZahl', 'ausklVar', 'ausklZwei', 'ausmultVar'] },
+  { name: 'Untersee-Cup', sub: 'Summen multiplizieren und binomische Formeln', n: 6, soll: 11 * 60,
+    gens: ['summenXX', 'summenXY', 'summen2', 'binom1', 'binom2', 'binom3', 'kopf1', 'kopf2', 'kopf3'] },
+  { name: 'Bodensee-Woche', sub: 'Binomische Formeln mit Zahl vor der Variablen, Faktorisieren', n: 7, soll: 14 * 60,
+    gens: ['binom1k', 'binom2k', 'binom3k', 'faktor12', 'faktor12k', 'faktor3', 'faktor3k', 'faktorCheck'] },
+  { name: 'Rund um die Höri', sub: 'Gleichungen mit Klammern, Minus vor der Klammer, Zahlenrätsel, Bruchgleichungen', n: 8, soll: 22 * 60,
+    gens: ['gleichungBinom', 'gleichungLinear', 'minusBinom', 'minusLinear', 'raetselMaschine', 'raetselRechteck', 'bruchX', 'bruchHN', 'bruch2x'] },
+  { name: 'Bodensee-Meisterschaft', sub: 'Meisterklasse: mehrere Schritte verknüpfen', n: 8, soll: 30 * 60,
+    must: ['vereinfacheMix', 'faktorAus'],   // kommen in jedem Rennen vor
+    gens: ['gleichungZweiBinome', 'gleichungProdukt', 'raetselFlaeche', 'rechteckFlaeche', 'bruchMix', 'bruchZaehler', 'faktorAus', 'vereinfacheMix', 'minusBinom'] }
+];
+const SAIL_COLORS = [['Weiß', '#f8fafc'], ['Rot', '#e4572e'], ['Orange', '#f97316'], ['Gelb', '#f4b400'], ['Grün', '#2e8b57'],
+  ['Türkis', '#14b8a6'], ['Blau', '#2563eb'], ['Lila', '#7c3aed'], ['Pink', '#ec4899'], ['Schwarz', '#1f2937']];
+const HULL_COLORS = [['Weiß', '#ffffff'], ['Grau', '#94a3b8'], ['Holz', '#a16207'], ['Dunkelblau', '#1e3a8a'], ['Rot', '#b91c1c'],
+  ['Grün', '#166534'], ['Gelb', '#facc15'], ['Schwarz', '#111827']];
+const PARTS = [['main', 'Großsegel (hinten am Mast)', SAIL_COLORS], ['jib', 'Vorsegel (vorne)', SAIL_COLORS], ['hull', 'Rumpf', HULL_COLORS]];
+const MEDALS = { gold: '🥇', silber: '🥈', bronze: '🥉', ziel: '🏁' };
+const RANK = ['gold', 'silber', 'bronze', 'ziel'];
+const MAX_KRINGEL = 5;
+
+/* ---------- Speicher (nur dieses Gerät) ---------- */
+const KEY = 'termeRegatta.v1';
+let save = { boat: { main: '#e4572e', jib: '#f8fafc', hull: '#ffffff' }, name: '', best: {} };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) save = Object.assign(save, s); } catch (e) {}
+if (typeof save.sail === 'number') {   // alter Speicherstand: nur eine Segelfarbe
+  const old = ['#e4572e', '#2563eb', '#f4b400', '#2e8b57'][save.sail] || '#e4572e';
+  save.boat = { main: old, jib: old, hull: '#ffffff' }; delete save.sail;
+}
+if (save.name) save.name = String(save.name).slice(0, 10);
+// Gesperrter Name aus altem Speicherstand wird beim Laden verworfen (Prüfung nach dem Laden der Liste, siehe renderStart)
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) {} };
+
+/* ---------- Ton: selbst erzeugte 8-Bit-Klänge (Web Audio), eigene Melodien, keine Sounddateien ----------
+   Standardmäßig aus; der Knopf unten rechts schaltet um, der Browser merkt sich die Wahl. */
+let actx = null, titlePlayed = false;
+const midi = m => 440 * Math.pow(2, (m - 69) / 12);
+function audio() {
+  if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+// notes: [[midi|null, Schläge], …]  – null = Pause
+function playSeq(notes, { beat = 0.14, type = 'square', vol = 0.06, at = 0 } = {}) {
+  const ctx = audio(); if (!ctx) return;
+  let t = ctx.currentTime + 0.03 + at;
+  for (const [m, b] of notes) {
+    const d = b * beat;
+    if (m !== null) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.value = midi(m);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.01);
+      g.gain.setValueAtTime(vol, t + d * 0.7);
+      g.gain.linearRampToValueAtTime(0, t + d * 0.95);
+      o.connect(g).connect(ctx.destination);
+      o.start(t); o.stop(t + d);
+    }
+    t += d;
+  }
+}
+const SFX = {
+  ok:    () => playSeq([[76, 1], [84, 2]], { beat: 0.07 }),
+  bad:   () => playSeq([[62, 2], [61, 2], [60, 2], [59, 4]], { beat: 0.09, type: 'sawtooth', vol: 0.04 }),
+  tip:   () => playSeq([[88, 1]], { beat: 0.06, vol: 0.04 }),
+  bell:  () => playSeq([[84, 1], [91, 3]], { beat: 0.08, type: 'triangle', vol: 0.12 }),
+  ziel:  () => playSeq([[67, 1], [72, 1], [76, 1], [79, 3]], { beat: 0.11 }),
+  gold:  () => { playSeq([[67, 1], [72, 1], [76, 1], [79, 2], [76, 1], [79, 4]], { beat: 0.11 });
+                 playSeq([[48, 3], [55, 3], [48, 4]], { beat: 0.11, type: 'triangle', vol: 0.1 }); },
+  dnf:   () => playSeq([[67, 2], [66, 2], [65, 2], [64, 6]], { beat: 0.12, type: 'triangle', vol: 0.1 }),
+  sink:  () => { playSeq([[64, 1], [60, 1], [57, 1], [52, 2], [48, 4]], { beat: 0.16, type: 'sawtooth', vol: 0.04 });
+                 playSeq([[null, 6], [84, .5], [null, .5], [88, .5], [null, 1], [86, .5]], { beat: 0.16, type: 'sine', vol: 0.05 }); },
+  horn:  () => playSeq([[67, 2], [null, 1], [69, 2], [null, 1], [71, 4]], { beat: 0.12, type: 'sawtooth', vol: 0.035 }),
+  title: () => {   // kleines Seemanns-Motiv, eigene Komposition
+    playSeq([[67, .5], [72, .5], [72, .25], [74, .25], [76, .5], [76, .5], [74, .5], [72, .5], [74, 1],
+             [67, .5], [71, .5], [74, .5], [77, .5], [76, .5], [74, .5], [72, 1.5]], { beat: 0.3 });
+    playSeq([[48, 1.5], [55, 1.5], [43, 1.5], [50, 1.5], [43, 1.5], [48, 1.5]], { beat: 0.3, type: 'triangle', vol: 0.1 });
+  }
+};
+function sfx(name) { if (save.sound && SFX[name]) { try { SFX[name](); } catch (e) {} } }
+function renderSoundBtn() {
+  const b = $('soundBtn');
+  b.textContent = save.sound ? '🔊' : '🔇';
+  b.title = save.sound ? 'Ton ausschalten' : 'Ton einschalten'; b.setAttribute('aria-label', b.title);
+}
+$('soundBtn').onclick = () => {
+  save.sound = !save.sound; persist(); renderSoundBtn();
+  if (save.sound) { titlePlayed = true; sfx('title'); }
+};
+// Titelmelodie beim ersten Klick nach dem Laden (Browser erlauben vorher keinen Ton)
+document.addEventListener('pointerdown', e => {
+  if (titlePlayed || !save.sound || e.target.closest('#soundBtn')) return;
+  titlePlayed = true; sfx('title');
+}, true);
+renderSoundBtn();
+const ALLE = new URLSearchParams(location.search).has('alle');   // Lehrkraft: ?alle schaltet alles frei
+const unlocked = i => ALLE || i === 0 || !!save.best[i - 1];
+
+/* ---------- Ansichten ---------- */
+function show(id) {
+  ['vStart', 'vRaces', 'vRace', 'vResult'].forEach(v => $(v).classList.toggle('hidden', v !== id));
+  window.scrollTo(0, 0);
+}
+/* ---------- Namensfilter: gängige Schimpfwörter und Beleidigungen sind als Bootsname gesperrt ----------
+   Liste base64-kodiert, damit sie beim Blick in den Quelltext nicht im Klartext steht.
+   s = irgendwo im Namen, a = am Namensanfang, w = als ganzes Wort.  */
+const BAD = JSON.parse(atob('eyJzIjogWyJuZWdlciIsICJuaWdnZXIiLCAibmlnZ2EiLCAiaHVyZW5zb2huIiwgImh1cmUiLCAibnV0dGUiLCAid2ljaHNlciIsICJ3aXhlciIsICJ3aWNocyIsICJmb3R6ZSIsICJzY2hsYW1wZSIsICJmaWNrZXIiLCAiZmlja2VuIiwgImZpY2siLCAibXV0dGVyZmlja2VyIiwgIm1pc3NnZWJ1cnQiLCAic3Bhc3RpIiwgImJlaGluZGkiLCAic2Nod3VjaHRlbCIsICJ0cmFuc2UiLCAia2FuYWtlIiwgInppZ2V1bmVyIiwgImp1ZGVuc2F1IiwgIm5hemkiLCAiaGl0bGVyIiwgInNpZWdoZWlsIiwgInBlbmlzIiwgInBpbW1lbCIsICJzY2h3YW56IiwgIm11c2NoaSIsICJ0aXR0ZW4iLCAiYXJzY2hsb2NoIiwgImJhc3RhcmQiLCAibWlzdHN0dWVjayIsICJkcmVja3N0dWVjayIsICJiaXRjaCIsICJmdWNrIiwgInNoaXQiLCAic2NoZWlzcyIsICJwaXNzZXIiLCAicG9ybm8iLCAidmVyZ2V3YWx0aWciLCAiZGVpbmVtdXR0ZXIiLCAiZGVpbm11ZGRhIiwgInlhcnJhayIsICJ5YXJhayIsICJvcm9zcHUiLCAic2lrdGlyIiwgImthaHBlIiwgInNjaGxpdHphdWdlIiwgIm51dHRlbnNvaG4iLCAiaHVyZW5raW5kIiwgIndpeHhlciIsICJjdW50IiwgInNleHkiXSwgImEiOiBbImFyc2NoIiwgImthY2siLCAic3Bhc3QiLCAib3BmZXIiXSwgInciOiBbImFtayIsICJoZWlsIiwgInBpYyIsICJoaCIsICJuc2RhcCIsICJzcyIsICJra2siLCAiODgiLCAic2V4IiwgIm1vbmdvIl19'));
+function normName(t) {
+  return t.toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[0@4]/g, m => ({ '0': 'o', '@': 'a', '4': 'a' }[m])).replace(/[1!|]/g, 'i').replace(/3/g, 'e')
+    .replace(/[5$]/g, 's').replace(/7/g, 't').replace(/€/g, 'e');
+}
+const squeeze = t => t.replace(/(.)\1+/g, '$1');
+function nameErlaubt(name) {
+  const n = normName(name || '');
+  const words = n.split(/[^a-z0-9]+/).filter(Boolean);
+  const flat = n.replace(/[^a-z0-9]/g, '').replace(/ignazi/g, '');   // harmlose Namen, die ein gesperrtes Wort enthalten
+  const forms = [flat, squeeze(flat)];
+  if (BAD.s.some(b => forms.some(f => f.includes(b) || f.includes(squeeze(b))))) return false;
+  if (BAD.a.some(b => forms.some(f => f.startsWith(b)) || words.some(w => w.startsWith(b)))) return false;
+  if (BAD.w.some(b => words.includes(b) || flat === b)) return false;
+  return true;
+}
+// Boot fährt nach rechts: Bug rechts, Vorsegel vor dem Mast, Großsegel dahinter. Name steht auf dem Rumpf.
+const NAME_MAX = 10;
+function darkColor(hex) {
+  const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  return 0.299 * r + 0.587 * g + 0.114 * b < 140;
+}
+function boatParts(c = save.boat, name = save.name) {
+  name = (name || '').slice(0, NAME_MAX);
+  const fit = name.length > 7 ? ` textLength="56" lengthAdjust="spacingAndGlyphs"` : '';
+  return `<path d="M-34 0 L42 -1 L29 16 L-30 16 Z" fill="${c.hull}" stroke="#334155" stroke-width="2"/>
+    <line x1="0" y1="0" x2="0" y2="-66" stroke="#334155" stroke-width="2.5"/>
+    <path d="M-3 -64 L-3 -5 L-30 -5 Z" fill="${c.main}" stroke="#475569" stroke-width=".8"/>
+    <path d="M3 -60 L3 -7 L32 -7 Z" fill="${c.jib}" stroke="#475569" stroke-width=".8"/>
+    ${name ? `<text x="2" y="11" text-anchor="middle" font-size="10" font-weight="800" letter-spacing=".3" fill="${darkColor(c.hull) ? '#ffffff' : '#1f2937'}"${fit}>${esc(name)}</text>` : ''}`;
+}
+const boatSVG = (w = 60) => `<svg viewBox="-38 -72 84 92" width="${w}">${boatParts()}</svg>`;
+function renderStart() {
+  $('boatPreview').innerHTML = boatSVG(108);
+  $('boatPicker').innerHTML = PARTS.map(([key, label, cols]) => `<div class="crow"><small>${label}</small><div class="swatches">${
+    cols.map(([n, c]) => `<button class="sw ${save.boat[key] === c ? 'sel' : ''}" data-part="${key}" data-c="${c}" title="${n}" aria-label="${label}: ${n}" style="background:${c}"></button>`).join('')
+  }</div></div>`).join('');
+  if (save.name && !nameErlaubt(save.name)) { save.name = ''; persist(); }
+  $('boatName').value = save.name || '';
+}
+$('boatPicker').addEventListener('click', e => {
+  const b = e.target.closest('.sw'); if (!b) return;
+  save.boat[b.dataset.part] = b.dataset.c; persist(); renderStart();
+});
+$('boatName').addEventListener('input', e => {
+  const name = e.target.value.trim().slice(0, NAME_MAX), ok = nameErlaubt(name);
+  e.target.style.borderColor = ok ? '' : 'var(--bad)';
+  $('nameHinweis').classList.toggle('hidden', ok);
+  save.name = ok ? name : ''; persist(); $('boatPreview').innerHTML = boatSVG(108);
+});
+$('toRaces').onclick = () => { renderRaces(); show('vRaces'); };
+$('backStart').onclick = () => { renderStart(); show('vStart'); };
+
+function renderRaces() {
+  $('raceList').innerHTML = RACES.map((r, i) => {
+    const open = unlocked(i), m = save.best[i];
+    return `<button class="card race ${open ? '' : 'locked'}" data-i="${i}" ${open ? '' : 'disabled'}>
+      <span class="num">${i + 1}</span>
+      <span><b>${r.name}</b><small class="muted">${r.sub}</small><small class="muted">${r.n} Bojen · Sollzeit ${Math.floor(r.soll / 60)}:00 min</small></span>
+      <span class="medal">${m ? MEDALS[m] : (open ? '' : '🔒')}</span></button>`;
+  }).join('');
+}
+$('raceList').addEventListener('click', e => {
+  const b = e.target.closest('.race'); if (!b || b.disabled) return;
+  startRace(+b.dataset.i);
+});
+
+/* ---------- Szene ---------- */
+const BOAT_Y = 158, START_X = 55, FINISH_X = 950;
+const buoyX = (i, n) => 190 + i * (690 / Math.max(1, n - 1));
+/* Jede Regatta zu einer anderen Tageszeit: Himmel, Sonne/Mond, See und ein Farbschleier über dem Ufer */
+const TAGESZEITEN = [
+  { name: '🌅 Morgen', sky: ['#f4b998', '#fde7cf'], lake: ['#8fbcd8', '#3d7fae'], sun: { x: 120, y: 24, r: 20, c: '#ff9f4a' }, tint: ['#ffb38a', .14] },
+  { name: '☀️ Vormittag', sky: ['#bfe3ff', '#eef8ff'], lake: ['#5cb0e0', '#1f6fa8'], sun: { x: 880, y: 32, r: 18, c: '#ffd166' }, tint: null },
+  { name: '🌤️ Mittag', sky: ['#8ccaff', '#dff1ff'], lake: ['#4aa6e2', '#16609e'], sun: { x: 720, y: 16, r: 16, c: '#fff3a6' }, tint: null },
+  { name: '🌇 Abend', sky: ['#f9844a', '#ffd79a'], lake: ['#d98b62', '#24527e'], sun: { x: 905, y: 28, r: 24, c: '#ff4d26' }, tint: ['#ff7a3a', .2] },
+  { name: '🌙 Nacht', sky: ['#0b1733', '#2c3f6b'], lake: ['#24416e', '#0a1a35'], moon: { x: 860, y: 30, r: 13 }, tint: ['#08132e', .55] }
+];
+function himmelSVG(tz) {
+  if (tz.moon) {
+    let stars = '';
+    for (let i = 0; i < 40; i++) stars += `<circle cx="${(i * 97 + 13) % 1000}" cy="${4 + (i * 37) % 52}" r="${i % 5 ? .8 : 1.4}" fill="#fff" opacity="${.5 + (i % 3) * .2}"/>`;
+    const m = tz.moon;
+    return stars + `<circle cx="${m.x}" cy="${m.y}" r="${m.r + 7}" fill="#f5f3dc" opacity=".12"/><circle cx="${m.x}" cy="${m.y}" r="${m.r}" fill="#f5f3dc"/><circle cx="${m.x + 6}" cy="${m.y - 4}" r="${m.r}" fill="${tz.sky[0]}"/>`;
+  }
+  const u = tz.sun;
+  return `<circle cx="${u.x}" cy="${u.y}" r="${u.r + 10}" fill="${u.c}" opacity=".25"/><circle cx="${u.x}" cy="${u.y}" r="${u.r}" fill="${u.c}"/>`;
+}
+// nachts leuchten einzelne Fenster im Schloss, im Anbau und in den Dorfhäusern
+function lichterSVG() {
+  let l = '';
+  [[533, 62], [553, 62], [573, 71], [543, 71], [581, 62], [623, 74], [645, 83], [612, 83]].forEach(([x, y]) => l += `<rect x="${x}" y="${y}" width="3.4" height="5" fill="#ffd36b"/>`);
+  for (let i = 0; i < 26; i++) l += `<rect x="${(i * 151 + 40) % 980}" y="${62 + (i * 23) % 24}" width="2.5" height="2.5" fill="#ffd36b" opacity=".9"/>`;
+  return l + '<circle cx="506.5" cy="42" r="3" fill="#fff4c2"/>';
+}
+function drawScene(n) {
+  flaggeY = 0; cancelAnimationFrame(flaggeRaf);
+  const tz = TAGESZEITEN[st ? st.lvl : 1] || TAGESZEITEN[1], night = !!tz.moon;
+  let waves = '';
+  for (let i = 0; i < 9; i++) {
+    const y = 118 + (i % 3) * 30, x = (i * 117) % 1000;
+    waves += `<path class="wave" style="animation-delay:${-i * .4}s" d="M${x} ${y} q12 -6 24 0 t24 0" fill="none" stroke="rgba(255,255,255,${night ? .3 : .55})" stroke-width="2"/>`;
+  }
+  let buoys = '';
+  for (let i = 0; i < n; i++) {
+    const x = buoyX(i, n);
+    buoys += `<g class="buoy" id="buoy${i}" transform="translate(${x},${BOAT_Y + 4})">
+      <ellipse cx="0" cy="6" rx="12" ry="4" fill="rgba(0,0,0,.18)"/>
+      <path class="buoytop" d="M-9 4 L-6 -18 L6 -18 L9 4 Z" fill="#f97316" stroke="#9a3412" stroke-width="1.5"/>
+      <text x="0" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">${i + 1}</text></g>`;
+  }
+  $('scene').innerHTML = `
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${tz.sky[0]}"/><stop offset="1" stop-color="${tz.sky[1]}"/></linearGradient>
+      <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${tz.lake[0]}"/><stop offset="1" stop-color="${tz.lake[1]}"/></linearGradient>
+      <pattern id="bwStripes" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#fff"/><rect width="5" height="10" fill="#005ca9"/></pattern>
+      <pattern id="checker" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#fff"/><rect width="4" height="4" fill="#111"/><rect x="4" y="4" width="4" height="4" fill="#111"/></pattern>
+    </defs>
+    <rect width="1000" height="104" fill="url(#sky)"/>
+    ${himmelSVG(tz)}
+    ${shoreSVG()}
+    ${tz.tint ? `<rect width="1000" height="104" fill="${tz.tint[0]}" opacity="${tz.tint[1]}"/>` : ''}
+    ${night ? lichterSVG() : ''}
+    <rect y="102" width="1000" height="108" fill="url(#lake)"/>
+    ${waves}
+    <g transform="translate(${START_X - 20},${BOAT_Y})"><line x1="0" y1="10" x2="0" y2="-40" stroke="#334155" stroke-width="2.5"/><path d="M0 -40 L18 -33 L0 -26Z" fill="#facc15"/><text x="0" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">START</text></g>
+    <g transform="translate(${FINISH_X + 15},${BOAT_Y})"><line x1="0" y1="10" x2="0" y2="-44" stroke="#334155" stroke-width="2.5"/><rect x="0" y="-44" width="24" height="16" fill="url(#checker)" stroke="#111"/><text x="0" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">ZIEL</text></g>
+    ${buoys}
+    <g id="boat" style="transform:translate(${START_X}px,${BOAT_Y}px)">
+      <g id="boatSpin" style="transform-box:fill-box;transform-origin:center">
+        <g class="bob" style="transform-box:fill-box;transform-origin:center bottom">
+          <g transform="scale(1.25)">${boatParts()}</g>
+        </g>
+      </g>
+    </g>`;
+}
+/* Ufer bei Gaienhofen: Hügel, Dorf, Schule mit Schloss und Kirchturm (vereinfachte Umrisse) */
+function shoreSVG() {
+  let rnd = 7; const r = () => (rnd = (rnd * 9301 + 49297) % 233280) / 233280;   // fester Zufall → immer gleiches Dorf
+  const hillY = x => 52 + 10 * Math.sin(x / 140) + 6 * Math.sin(x / 57);
+  let houses = '';
+  for (let x = 20; x < 990; x += 22 + r() * 16) {
+    if (x > 360 && x < 670 && r() < .7) continue;
+    const y = hillY(x) + 6 + r() * 22, w = 13 + r() * 9, h = 7 + r() * 4;
+    houses += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${r() < .7 ? '#f6efe3' : '#e9e2d4'}" stroke="#9ca3af" stroke-width=".5"/>
+      <path d="M${x - 2} ${y} L${x + w / 2} ${y - 6 - r() * 3} L${x + w + 2} ${y}Z" fill="${r() < .75 ? '#c2562f' : '#8b5e3c'}"/>`;
+  }
+  let trees = '';
+  const tree = (x, y, rr, c) => `<circle cx="${x}" cy="${y}" r="${rr}" fill="${c}"/>`;
+  for (let x = 0; x < 1000; x += 9 + r() * 10) {
+    if (x > 375 && x < 668) continue;                       // Blick auf die Schule frei lassen
+    trees += tree(x, 93 - r() * 6, 6 + r() * 6, r() < .5 ? '#4f8a3c' : '#3f7a33');
+  }
+  for (let i = 0; i < 7; i++) trees += tree(380 + i * 44 + r() * 10, 98, 5 + r() * 3, '#4f8a3c');
+  // Baumgruppen in den Lücken zwischen den Gebäuden (Schule – Turm – Schloss) und vor den Fassaden
+  [[452, 86, 9], [462, 80, 10], [474, 84, 9], [486, 79, 10], [496, 87, 8], [516, 86, 7], [523, 90, 6],
+   [664, 84, 9], [674, 88, 8], [378, 86, 8]].forEach(([x, y, rr], i) => trees += tree(x, y, rr, i % 2 ? '#3f7a33' : '#4f8a3c'));
+  for (let x = 382; x < 668; x += 11 + r() * 8) trees += tree(x, 95 - r() * 3, 4.5 + r() * 3, r() < .5 ? '#4f8a3c' : '#5b9646');
+  return `
+    <path d="M0 40 Q150 22 300 36 T620 30 T1000 38 V60 H0Z" fill="#b9d3a6" opacity=".7"/>
+    <path d="M0 ${hillY(0)} ${Array.from({ length: 51 }, (_, i) => `L${i * 20} ${hillY(i * 20)}`).join(' ')} V104 H0Z" fill="#9cc58a"/>
+    ${houses}
+    <!-- Schulgebäude mit Flachdach -->
+    <rect x="384" y="70" width="70" height="22" fill="#e5e7eb" stroke="#9ca3af" stroke-width=".8"/>
+    <rect x="384" y="66" width="70" height="5" fill="#cbd5e1"/>
+    <rect x="388" y="76" width="62" height="5" fill="#64748b"/>
+    <rect x="388" y="85" width="62" height="4" fill="#94a3b8"/>
+    <!-- freistehender Glockenturm: schlanker Betonquader, flaches Dach, Uhr -->
+    <rect x="501" y="22" width="11" height="72" fill="#e9e7e1" stroke="#9ca3af" stroke-width=".8"/>
+    <rect x="500" y="21" width="13" height="2.2" fill="#cfccc4"/>
+    <rect x="503.5" y="26" width="1.4" height="9" fill="#64748b"/><rect x="506" y="26" width="1.4" height="9" fill="#64748b"/><rect x="508.5" y="26" width="1.4" height="9" fill="#64748b"/>
+    <circle cx="506.5" cy="42" r="3" fill="#f8fafc" stroke="#334155" stroke-width=".7"/>
+    <path d="M506.5 42 V40 M506.5 42 H508" stroke="#334155" stroke-width=".6"/>
+    <!-- Fahnenmast auf dem Turm: blaue Flagge weht oben, bei falscher Antwort geht sie auf Halbmast -->
+    <line x1="506.5" y1="21" x2="506.5" y2="0" stroke="#475569" stroke-width="1.3"/>
+    <g id="flagge" transform="translate(0,0)">
+      <path class="flagwehen" d="M507.2 1 h15 l-3.5 5 l3.5 5 h-15 Z" fill="#2563eb"/>
+    </g>
+    <!-- weiße Flagge: wird gehisst, wenn das Boot untergeht (die Schule gibt auf) -->
+    <g id="weissFlagge" transform="translate(0,11)" style="display:none">
+      <path class="flagwehen" d="M507.2 1 h15 v10 h-15 Z" fill="#ffffff" stroke="#94a3b8" stroke-width=".8"/>
+    </g>
+    <!-- Schloss Gaienhofen: Hauptbau mit steilem rotem Satteldach -->
+    <rect x="516" y="82" width="16" height="12" fill="#9a968a"/>
+    <rect x="528" y="57" width="60" height="37" fill="#fbfbf8" stroke="#9ca3af" stroke-width=".8"/>
+    <path d="M588 57 L597 30 L606 57 L606 94 L588 94Z" fill="#ecede6" stroke="#9ca3af" stroke-width=".8"/>
+    <path d="M524 58 L541 30 L597 30 L588 58Z" fill="#c8553a" stroke="#97391f" stroke-width=".8"/>
+    <rect x="550" y="43" width="28" height="7" fill="#4b4f55"/>
+    ${[553, 560, 567, 573].map(x => `<rect x="${x}" y="44.5" width="3" height="4" fill="#f1f5f9"/>`).join('')}
+    ${[62, 71].map(y => [533, 543, 553, 563, 573, 581].map(x => `<rect x="${x - 1.4}" y="${y}" width="1.2" height="5" fill="#8e9aa3"/><rect x="${x}" y="${y}" width="3.4" height="5" fill="#64748b"/><rect x="${x + 3.6}" y="${y}" width="1.2" height="5" fill="#8e9aa3"/>`).join('')).join('')}
+    <path d="M533 94 V86 a4 4 0 0 1 8 0 V94Z M545 94 V86 a4 4 0 0 1 8 0 V94Z" fill="#5f6b73"/>
+    <rect x="566" y="85" width="5" height="9" fill="#475569"/>
+    ${[64, 74].map(y => `<rect x="595.5" y="${y}" width="3" height="4.5" fill="#64748b"/>`).join('')}
+    <!-- Anbau rechts mit dunklem Walmdach -->
+    <rect x="606" y="69" width="54" height="25" fill="#f7f7f3" stroke="#9ca3af" stroke-width=".8"/>
+    <path d="M602 70 L613 61 L653 61 L664 70Z" fill="#3c4247"/>
+    <rect x="618" y="62.5" width="6" height="5" fill="#f7f7f3" stroke="#3c4247" stroke-width=".5"/>
+    ${[74, 83].map(y => [612, 623, 634, 645, 654].map(x => `<rect x="${x - 1.4}" y="${y}" width="1.2" height="5" fill="#8e9aa3"/><rect x="${x}" y="${y}" width="3.4" height="5" fill="#64748b"/><rect x="${x + 3.6}" y="${y}" width="1.2" height="5" fill="#8e9aa3"/>`).join('')).join('')}
+    <!-- Wiese und Ufer -->
+    <path d="M0 96 Q250 90 500 96 T1000 95 V104 H0Z" fill="#7fb069"/>
+    ${trees}
+    <path d="M0 101 Q300 98 600 102 T1000 101 V105 H0Z" fill="#d6cfb4"/>`;
+}
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function moveBoat(x, y = BOAT_Y, fast = false) {
+  const b = $('boat'); b.classList.toggle('fast', fast);
+  b.style.transform = `translate(${x}px,${y}px)`;
+}
+// Boot bricht in der Mitte auseinander und versinkt; die Wasserlinie schneidet die sinkenden Hälften ab
+function sinkBoat() {
+  const spin = $('boatSpin'); if (!spin) return;
+  spin.classList.remove('spin');
+  const half = side => `<g class="half${side}"><g clip-path="url(#bruch${side})"><g transform="scale(1.25)">${boatParts()}</g></g></g>`;
+  spin.innerHTML = `<defs>
+      <clipPath id="wasserlinie"><rect x="-90" y="-160" width="180" height="172"/></clipPath>
+      <clipPath id="bruchL"><rect x="-90" y="-160" width="90" height="220"/></clipPath>
+      <clipPath id="bruchR"><rect x="0" y="-160" width="90" height="220"/></clipPath>
+    </defs><g clip-path="url(#wasserlinie)">${half('L')}${half('R')}</g>
+    ${[-14, 4, 16, -4, 10].map((x, i) => `<circle class="blase" style="animation-delay:${1.6 + i * .25}s" cx="${x}" cy="10" r="${2 + (i % 3)}" fill="none" stroke="#fff" stroke-width="1.2"/>`).join('')}`;
+  sfx('sink');
+  weisseFlagge();
+}
+function kringelAnim() {
+  const s = $('boatSpin'); s.classList.remove('spin'); void s.getBBox(); s.classList.add('spin');
+}
+
+/* ---------- Rennen ---------- */
+let st = null, timer = null;
+
+/* ---------- Easter Egg: nach 10–15 Minuten Segelzeit überholt einmal ein blau-weißes Boot ---------- */
+let eggClock = 0, eggDone = false;
+const eggAt = 600 + Math.floor(Math.random() * 301);
+function herthaEgg() {
+  eggDone = true;
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.id = 'hertha';
+  g.style.transition = 'transform 11s linear';
+  g.style.transform = 'translate(-90px,191px) scale(.85)';
+  g.innerHTML = `
+    <path d="M-30 0 L36 -1 L24 11 L-27 11 Z" fill="#fff" stroke="#005ca9" stroke-width="2"/>
+    <rect x="-26" y="3" width="54" height="2.5" fill="#005ca9"/>
+    <text x="2" y="10.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#005ca9" letter-spacing=".5">HERTHA</text>
+    <line x1="0" y1="0" x2="0" y2="-66" stroke="#334155" stroke-width="2.5"/>
+    <path d="M-3 -64 L-3 -5 L-28 -5 Z" fill="url(#bwStripes)" stroke="#005ca9" stroke-width="1"/>
+    <path d="M3 -60 L3 -7 L30 -7 Z" fill="#fff" stroke="#005ca9" stroke-width="1"/>
+    <path d="M0 -66 L14 -62 L0 -58Z" fill="#005ca9"/>
+    <g id="herthaRuf" opacity="0" style="transition:opacity .4s">
+      <rect x="10" y="-92" width="62" height="20" rx="8" fill="#fff" stroke="#005ca9"/>
+      <text x="41" y="-78" text-anchor="middle" font-size="11" font-weight="700" fill="#005ca9">Ha Ho He!</text>
+    </g>`;
+  $('scene').appendChild(g);
+  setTimeout(() => sfx('horn'), 3500);
+  requestAnimationFrame(() => requestAnimationFrame(() => { g.style.transform = 'translate(1100px,191px) scale(.85)'; }));
+  setTimeout(() => { const r = $('herthaRuf'); if (r) r.setAttribute('opacity', '1'); }, 3500);
+  setTimeout(() => { const r = $('herthaRuf'); if (r) r.setAttribute('opacity', '0'); }, 7000);
+  setTimeout(() => g.remove(), 11500);
+}
+// Während der Lösungsweg nach einem Fehler angezeigt wird, steht die Uhr (pauseStart gesetzt).
+const elapsed = () => Math.floor(((st.pauseStart || Date.now()) - st.t0 - st.paused) / 1000) + st.penalty;
+const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+function updateBar() {
+  if (!eggDone && !st.pauseStart && (eggClock += 0.5) >= eggAt) herthaEgg();
+  const r = RACES[st.lvl];
+  $('cRace').textContent = `${st.lvl + 1}. ${r.name} · ${TAGESZEITEN[st.lvl].name}`;
+  $('cBuoy').textContent = `Boje ${Math.min(st.i + 1, r.n)}/${r.n}`;
+  $('cKringel').textContent = `Strafkringel: ${'⭕'.repeat(st.kringel)}${'○'.repeat(Math.max(0, MAX_KRINGEL - st.kringel))}`;
+  const t = elapsed();
+  $('cTime').textContent = `${st.pauseStart ? '⏸' : '⏱'} ${mmss(t)} / ${mmss(r.soll)}`;
+  $('cTime').style.color = t > r.soll ? 'var(--bad)' : '';
+}
+// Pflicht-Aufgaben (must) immer dabei, der Rest zufällig aufgefüllt; alles gemischt
+function raceOrder(r) {
+  const must = r.must || [];
+  return shuffle([...must, ...shuffle(r.gens.slice()).slice(0, Math.max(0, r.n - must.length))]);
+}
+function startRace(lvl) {
+  const r = RACES[lvl];
+  st = { lvl, i: 0, kringel: 0, tipps: 0, penalty: 0, paused: 0, pauseStart: null, t0: Date.now(), order: raceOrder(r), task: null, busy: true };
+  drawScene(r.n);
+  show('vRace');
+  $('taskCard').innerHTML = `<div class="waiting">Startschuss! Dein Boot segelt zur ersten Boje …</div>`;
+  clearInterval(timer); timer = setInterval(updateBar, 500); updateBar();
+  setTimeout(() => moveBoat(buoyX(0, r.n) - 70), 300);
+  setTimeout(nextTask, 1900);
+}
+// Taschenrechner erlaubt überall dort, wo sonst schriftliches Rechnen die Zeit frisst.
+// Ohne Taschenrechner nur, wo die Regel bzw. das Kopfwissen selbst geübt wird und die Zahlen klein bleiben.
+// Terme-Regatta: Taschenrechner ist bei allen Aufgaben erlaubt (Malte 22.10.2026)
+function genFor(i) { const name = st.order[i % st.order.length], t = G[name](); t.tr = true; t.gen = name; return t; }
+/* Bruchgleichungen lassen sich ohne Strafe gegen eine andere Aufgabe dieser Regatta tauschen
+   (sie kommen im Unterricht erst nach den Ferien dran, gesegelt wird aber schon vorher) */
+const istBruch = name => /^bruch/.test(name);
+function tauschTask() {
+  const r = RACES[st.lvl], andere = r.gens.filter(g => !istBruch(g));
+  const name = pick(andere), t = G[name](); t.tr = true; t.gen = name; return t;
+}
+// halbmast = true: Flagge auf halbe Höhe (falsche Antwort); false: wieder ganz oben
+// per SVG-Attribut und requestAnimationFrame animiert – funktioniert auch in Safari auf dem iPad zuverlässig
+let flaggeY = 0, flaggeRaf = 0;
+// bewegt die blaue Flagge am Mast: 0 = ganz oben, 10 = Halbmast, 11 = ganz unten (eingeholt)
+function flaggeNach(el, nach, dauer, fertig) {
+  const von = flaggeY, t0 = performance.now();
+  cancelAnimationFrame(flaggeRaf);
+  const schritt = now => {
+    const p = Math.min(1, (now - t0) / dauer), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    flaggeY = von + (nach - von) * e;
+    el.setAttribute('transform', `translate(0,${flaggeY.toFixed(2)})`);
+    if (p < 1) flaggeRaf = requestAnimationFrame(schritt); else if (fertig) fertig();
+  };
+  flaggeRaf = requestAnimationFrame(schritt);
+}
+function flagge(halbmast) {
+  const f = $('flagge'); if (f && f.style.display !== 'none') flaggeNach(f, halbmast ? 10 : 0, 1400);
+}
+// Boot zerbrochen: blaue Flagge einholen, dann weiße Flagge hissen
+function weisseFlagge() {
+  const blau = $('flagge'), weiss = $('weissFlagge'); if (!blau || !weiss) return;
+  flaggeNach(blau, 11, 1100, () => {
+    blau.style.display = 'none';
+    weiss.style.display = ''; flaggeY = 11;
+    flaggeNach(weiss, 0, 1600);
+  });
+}
+function nextTask() {
+  flagge(false);
+  if (st.pauseStart) { st.paused += Date.now() - st.pauseStart; st.pauseStart = null; }
+  st.task = genFor(st.i); st.busy = false; st.hintShown = false;
+  renderTask();
+}
+function renderTask() {
+  const t = st.task;
+  let input = '';
+  if (t.type === 'num') input = `<div class="answer">${t.pre ? `<span>${t.pre}</span>` : ''}<input id="a1" inputmode="decimal" autocomplete="off" aria-label="Antwort">${t.post ? `<span>${t.post}</span>` : ''}</div>`;
+  if (t.type === 'term') {
+    const keys = [...(t.vars || ['x']), '²', '(', ')', '+', '−', '·'];
+    input = `<div class="answer term"><input id="a1" class="termin" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Dein Term" placeholder="Term eintippen"></div>
+      <div class="keys">${keys.map(k => `<button type="button" class="key" data-ins="${k}">${k}</button>`).join('')}<button type="button" class="key del" data-ins="⌫" aria-label="Löschen">⌫</button></div>
+      <div class="tprev" id="tprev"></div>`;
+  }
+  if (t.type === 'sci') input = `<div class="answer"><input id="a1" class="s" inputmode="decimal" autocomplete="off" aria-label="Zahl vor der Zehnerpotenz"><span>· 10</span><sup><input id="a2" class="s" inputmode="text" autocomplete="off" aria-label="Exponent" style="font-size:1rem;width:3.2em"></sup></div>`;
+  if (t.type === 'surd') input = `<div class="answer"><input id="a1" class="s" inputmode="numeric" autocomplete="off" aria-label="Zahl vor der Wurzel"><span>· √</span><input id="a2" class="s" inputmode="numeric" autocomplete="off" aria-label="Zahl unter der Wurzel">${t.post ? `<span>${t.post}</span>` : ''}</div><small class="muted">Links die Zahl vor der Wurzel, rechts die Zahl unter der Wurzel.</small>`;
+  if (t.type === 'mc') input = `<div class="mc">${t.options.map((o, k) => `<button class="opt" data-k="${k}">${o}</button>`).join('')}</div>`;
+  $('taskCard').innerHTML = `
+    <div class="task ${t.sketch ? '' : 'nosketch'}">
+      ${t.sketch ? `<div class="sketch">${t.sketch}</div>` : ''}
+      <div>
+        <div class="qtitle">Boje ${st.i + 1} · ${t.title}</div>
+        <span class="trbadge ${t.tr ? 'ja' : 'nein'}">${t.tr ? '🧮 Taschenrechner erlaubt' : '✏️ ohne Taschenrechner'}</span>
+        <div class="q">${t.q}</div>
+        <div id="infoBox" class="infobox hidden"></div>
+        ${input}
+        ${t.type === 'mc' ? '<p class="muted" style="margin:.2rem 0 0"><small>Tippe deine Antwort an und bestätige mit „Prüfen“.</small></p>' : ''}
+        <div class="btns"><button class="primary" id="check">Prüfen ✓</button><button id="hint">💡 Tipp (+10 s)</button>${istBruch(t.gen) && RACES[st.lvl].gens.some(g => !istBruch(g)) ? '<button id="tausch">🔄 Aufgabe tauschen (ohne Strafe)</button>' : ''}</div>
+        <div id="fb"></div>
+      </div>
+    </div>`;
+  st.mcSel = null;
+  if ($('tausch')) $('tausch').onclick = () => { if (!st.busy) { st.task = tauschTask(); st.hintShown = false; renderTask(); } };
+  if (t.type === 'mc') {
+    $('taskCard').querySelectorAll('.opt').forEach(b => b.onclick = () => {   // Antippen markiert nur, gewertet wird mit „Prüfen“
+      if (st.busy) return;
+      st.mcSel = t.options[+b.dataset.k];
+      $('taskCard').querySelectorAll('.opt').forEach(x => x.classList.toggle('sel', x === b));
+      if ($('fb').querySelector('.warn')) $('fb').innerHTML = '';
+    });
+    $('check').onclick = () => submit(st.mcSel);
+  } else {
+    if (t.type === 'term') wireTerm();
+    $('check').onclick = () => submit();
+    $('taskCard').querySelectorAll('input').forEach(inp => inp.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); }));
+    setTimeout(() => $('a1') && $('a1').focus({ preventScroll: true }), 50);
+  }
+  $('taskCard').querySelectorAll('.begriff').forEach(b => b.onclick = () => {
+    const box = $('infoBox'), same = !box.classList.contains('hidden') && box.dataset.b === b.dataset.b;
+    box.innerHTML = BEGRIFFE[b.dataset.b] || ''; box.dataset.b = b.dataset.b;
+    box.classList.toggle('hidden', same);
+  });
+  $('hint').onclick = () => {
+    if (st.hintShown || st.busy) return;
+    st.hintShown = true; st.tipps++; st.penalty += 10; updateBar(); sfx('tip');
+    $('fb').innerHTML = `<div class="fb hint">💡 ${t.hint}</div>`;
+  };
+}
+/* Term-Eingabe: Tasten fügen an der Schreibmarke ein (Tastatur bleibt offen), darunter die Vorschau */
+function wireTerm() {
+  const inp = $('a1');
+  const prev = () => {
+    const r = termParse(inp.value);
+    $('tprev').innerHTML = r.empty ? '<small class="muted">Zahlen über die Tastatur, x, ² und Klammern auch über die Tasten. Statt x² kannst du auch x2 tippen.</small>'
+      : r.error ? '<small class="err">⚠ Das kann ich noch nicht lesen – fehlt eine Klammer oder ein Rechenzeichen?</small>'
+      : `<small class="muted">So lese ich deine Eingabe:</small> <span class="prevterm">${termHtml(inp.value)}</span>`;
+  };
+  $('taskCard').querySelectorAll('.key').forEach(b => {
+    b.addEventListener('pointerdown', e => e.preventDefault());
+    b.addEventListener('click', () => {
+      if (inp.disabled) return;
+      const k = b.dataset.ins, s0 = inp.selectionStart ?? inp.value.length, s1 = inp.selectionEnd ?? s0;
+      if (k === '⌫') { const from = s0 === s1 ? Math.max(0, s0 - 1) : s0; inp.value = inp.value.slice(0, from) + inp.value.slice(s1); inp.setSelectionRange(from, from); }
+      else { inp.value = inp.value.slice(0, s0) + k + inp.value.slice(s1); inp.setSelectionRange(s0 + k.length, s0 + k.length); }
+      inp.focus({ preventScroll: true }); inp.dispatchEvent(new Event('input'));
+    });
+  });
+  inp.addEventListener('input', () => { prev(); if ($('fb').querySelector('.warn')) $('fb').innerHTML = ''; });
+  prev();
+}
+function check(t, mcVal) {
+  if (t.type === 'mc') return mcVal == null ? { empty: true, mc: true } : { ok: mcVal === t.ans };
+  if (t.type === 'term') {
+    const src = $('a1').value;
+    if (termParse(src).error) return { almost: 'Das kann ich noch nicht lesen. Schau auf die Vorschau unter dem Feld: Fehlt eine Klammer oder ein Rechenzeichen?' };
+    const g = gradeTerm(t, src);
+    if (g === -1) return { empty: true };
+    if (g === 1) return { almost: HALF_TIP[t.form] };
+    return { ok: g === 2 };
+  }
+  const v1 = parseNum($('a1').value);
+  if (t.type === 'num') {
+    if (isNaN(v1)) return { empty: true };
+    return { ok: eq(v1, t.ans) };
+  }
+  const v2 = parseNum($('a2').value);
+  if (t.type === 'sci') {
+    if (isNaN(v1) || isNaN(v2)) return { empty: true };
+    const val = v1 * Math.pow(10, v2), target = t.m * Math.pow(10, t.e);
+    if (eq(val, target) && !(Math.abs(v1) >= 1 && Math.abs(v1) < 10)) return { almost: 'Der Wert stimmt – aber vor dem Komma muss genau eine Ziffer von 1 bis 9 stehen. Verbessere noch!' };
+    return { ok: eq(val, target) && Number.isInteger(v2) };
+  }
+  if (t.type === 'surd') {
+    const c = $('a1').value.trim() === '' ? 1 : v1;
+    if (isNaN(c) || isNaN(v2)) return { empty: true };
+    const valueOk = eq(c * c * v2, t.c * t.c * t.r) && c > 0;
+    if (valueOk && (c !== t.c || v2 !== t.r)) return { almost: 'Der Wert stimmt – aber du kannst noch weiter vereinfachen. Steckt unter der Wurzel noch eine Quadratzahl?' };
+    return { ok: valueOk };
+  }
+}
+function submit(mcVal) {
+  if (st.busy) return;
+  const t = st.task, res = check(t, mcVal);
+  if (res.empty) { $('fb').innerHTML = `<div class="fb warn">${res.mc ? 'Bitte tippe zuerst eine Antwort an.' : 'Bitte trage zuerst eine Antwort ein.'}</div>`; return; }
+  if (res.almost) { $('fb').innerHTML = `<div class="fb warn">🔎 ${res.almost}</div>`; return; }
+  st.busy = true;
+  $('taskCard').querySelectorAll('input,button').forEach(el => el.disabled = true);
+  const r = RACES[st.lvl];
+  if (res.ok) {
+    sfx('ok');
+    $('fb').innerHTML = `<div class="fb ok">✅ <b>Richtig!</b> ${pick(['Saubere Wende um die Boje!', 'Volle Fahrt voraus!', 'Perfekte Rundung!', 'Der Wind ist auf deiner Seite!'])}</div>`;
+    const x = buoyX(st.i, r.n);
+    moveBoat(x + 6, BOAT_Y + 22, true);
+    setTimeout(() => {
+      $('buoy' + st.i).classList.add('done'); sfx('bell');
+      st.i++; updateBar();
+      if (st.i >= r.n) { moveBoat(FINISH_X); setTimeout(finish, 1600); }
+      else { moveBoat(buoyX(st.i, r.n) - 70); $('taskCard').innerHTML = `<div class="waiting">Weiter zur Boje ${st.i + 1} …</div>`; setTimeout(nextTask, 1600); }
+    }, 1300);
+  } else {
+    st.kringel++; st.penalty += 20; st.pauseStart = Date.now(); updateBar(); kringelAnim(); sfx('bad'); flagge(true);
+    const sol = `<ol class="sol">${t.sol.map(s => `<li>${s}</li>`).join('')}</ol>`;
+    if (st.kringel > MAX_KRINGEL) {
+      $('fb').innerHTML = `<div class="fb bad">❌ Leider falsch. So geht's:${sol}</div><div class="btns"><button class="primary" id="dnf">Weiter</button></div>`;
+      $('dnf').onclick = () => finish(true);
+      setTimeout(sinkBoat, 900);   // erst Strafkringel, dann geht das Boot unter
+      return;
+    }
+    $('fb').innerHTML = `<div class="fb bad">❌ <b>Strafkringel!</b> (+20 s) So wäre es richtig gewesen:${sol}<small class="muted">⏸ Die Uhr ist angehalten, bis du weiterklickst – lies den Lösungsweg in Ruhe.</small></div>
+      <div class="btns"><button class="primary" id="again">Neue Aufgabe an dieser Boje ➜</button></div>`;
+    $('again').onclick = nextTask; $('again').focus();
+  }
+}
+function finish(dnf = false) {
+  clearInterval(timer);
+  const r = RACES[st.lvl], total = elapsed();
+  let medal = null, line;
+  if (dnf) line = `<div class="medalbig">⚓</div><h2>Disqualifiziert</h2><p>Mehr als ${MAX_KRINGEL} Strafkringel. Schau dir die Lösungswege noch einmal an – beim nächsten Start klappt es!</p>`;
+  else {
+    let idx = st.kringel <= 1 ? 0 : st.kringel <= 3 ? 1 : 2;
+    const late = total > r.soll; if (late) idx = Math.min(3, idx + 1);
+    medal = RANK[idx];
+    const prev = save.best[st.lvl];
+    if (!prev || RANK.indexOf(medal) < RANK.indexOf(prev)) { save.best[st.lvl] = medal; persist(); }
+    const txt = { gold: 'Regattasieg!', silber: 'Zweiter Platz!', bronze: 'Dritter Platz!', ziel: 'Im Ziel!' }[medal];
+    line = `<div class="medalbig">${MEDALS[medal]}</div><h2>${txt}</h2>
+      <p>${esc(save.name || 'Dein Boot')} hat die ${r.name} beendet${late ? ' – aber die Sollzeit überschritten, deshalb eine Stufe tiefer' : ''}.</p>`;
+  }
+  const hasNext = !dnf && st.lvl + 1 < RACES.length;
+  $('resultCard').innerHTML = `${line}
+    <div class="stats"><span class="chip">⏱ ${mmss(total)} (Soll ${mmss(r.soll)})</span><span class="chip">Strafkringel: ${st.kringel}</span><span class="chip">Tipps: ${st.tipps}</span></div>
+    <div class="btns" style="justify-content:center">
+      <button id="rAgain">Nochmal segeln</button>
+      ${hasNext ? '<button class="primary" id="rNext">Nächste Regatta ➜</button>' : ''}
+      <button id="rList">Regattakalender</button></div>
+    ${!dnf && st.lvl + 1 === RACES.length ? '<p style="margin-top:14px">🏆 Du hast alle fünf Regatten des Gaienhofener Schlosscups gesegelt – Respekt, Skipper!</p>' : ''}`;
+  $('rAgain').onclick = () => startRace(st.lvl);
+  if (hasNext) $('rNext').onclick = () => startRace(st.lvl + 1);
+  $('rList').onclick = () => { renderRaces(); show('vRaces'); };
+  sfx(dnf ? 'dnf' : medal === 'gold' ? 'gold' : 'ziel');
+  show('vResult');
+}
+$('giveUp').onclick = () => {
+  if (!confirm('Regatta wirklich abbrechen?')) return;
+  clearInterval(timer); st.busy = true;
+  $('taskCard').querySelectorAll('input,button').forEach(el => el.disabled = true);
+  $('giveUp').disabled = true;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  sinkBoat();
+  setTimeout(() => { $('giveUp').disabled = false; renderRaces(); show('vRaces'); }, 3600);
+};
+
+renderStart();
+</script>
+</body>
+</html>
