@@ -13,7 +13,7 @@ Fünf Regatten auf dem Untersee – an jeder Boje eine Aufgabe; falsch gelöst g
 | 4 Rund um die Höri | Gleichungen mit Klammern, Minus vor der Klammer, Bruchgleichungen |
 | 5 Bodensee-Meisterschaft | verknüpfte Aufgaben: erst ausklammern dann faktorisieren, zwei Binome, Flächeninhalt als Term, Bruchgleichungen mit x im Zähler |
 
-- Taschenrechner ist überall erlaubt. Bruchgleichungen lassen sich ohne Strafe gegen eine andere Aufgabe tauschen.
+- Taschenrechner ist überall erlaubt. Bruchgleichungen werden nicht mehr getauscht (seit 3.11.2026 besprochen).
 - Alle Aufgaben werden per Zufall neu erzeugt – keine Aufgaben aus Schulbüchern. Eine Datei, läuft offline, keine Daten verlassen das Gerät.
 - Lehrkraft-Modus: `?alle` schaltet alle Regatten frei.
 

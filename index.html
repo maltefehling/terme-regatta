@@ -200,7 +200,6 @@ sup{font-size:.7em}
         <li>Jede beendete Regatta schaltet die nächste frei.</li>
         <li><span class="trbadge ja">🧮 Taschenrechner</span> ist bei allen Aufgaben erlaubt. Rechne im Heft und tippe nur das Ergebnis ein.</li>
         <li>Terme tippst du ein: für x² geht auch <b>x2</b>. Unter dem Feld siehst du, wie die App deine Eingabe liest.</li>
-        <li>Bruchgleichungen kannst du gegen eine andere Aufgabe tauschen – ohne Strafe.</li>
       </ul>
     </div>
   </div>
@@ -1263,12 +1262,11 @@ function renderTask() {
         <div id="infoBox" class="infobox hidden"></div>
         ${input}
         ${t.type === 'mc' ? '<p class="muted" style="margin:.2rem 0 0"><small>Tippe deine Antwort an und bestätige mit „Prüfen“.</small></p>' : ''}
-        <div class="btns"><button class="primary" id="check">Prüfen ✓</button><button id="hint">💡 Tipp (+10 s)</button>${istBruch(t.gen) && RACES[st.lvl].gens.some(g => !istBruch(g)) ? '<button id="tausch">🔄 Aufgabe tauschen (ohne Strafe)</button>' : ''}</div>
+        <div class="btns"><button class="primary" id="check">Prüfen ✓</button><button id="hint">💡 Tipp (+10 s)</button></div>
         <div id="fb"></div>
       </div>
     </div>`;
   st.mcSel = null;
-  if ($('tausch')) $('tausch').onclick = () => { if (!st.busy) { st.task = tauschTask(); st.hintShown = false; renderTask(); } };
   if (t.type === 'mc') {
     $('taskCard').querySelectorAll('.opt').forEach(b => b.onclick = () => {   // Antippen markiert nur, gewertet wird mit „Prüfen“
       if (st.busy) return;
