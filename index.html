@@ -1314,6 +1314,12 @@ function wireTerm() {
   inp.addEventListener('input', () => { prev(); if ($('fb').querySelector('.warn')) $('fb').innerHTML = ''; });
   prev();
 }
+const HALF_TIP = {   // Hinweise bei „gleichwertig, aber noch nicht fertig“ (fehlten in der Regatta bis 7.11.2026 → Prüfen-Knopf blieb stumm)
+  sum: 'Der Term stimmt, ist aber noch nicht fertig: Löse alle Klammern auf und fasse gleiche Glieder zusammen.',
+  factor: 'Richtig umgeformt – aber in der Klammer steckt noch ein gemeinsamer Faktor. Klammere so viel wie möglich aus.',
+  binomK: 'Gleichwertig – aber noch nicht fertig: Erst die gemeinsame Zahl ausklammern, dann den Rest in der Klammer mit einer binomischen Formel faktorisieren, z. B. 2 · (x + 3) · (x − 3).',
+  binom: 'Gleichwertig – aber noch nicht als binomische Klammer geschrieben. Schreibe das Ergebnis als (… + …)², (… − …)² oder (… + …) · (… − …).'
+};
 function check(t, mcVal) {
   if (t.type === 'mc') return mcVal == null ? { empty: true, mc: true } : { ok: mcVal === t.ans };
   if (t.type === 'term') {
